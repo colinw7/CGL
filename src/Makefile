@@ -1,0 +1,101 @@
+CPP_CC = g++
+
+AR = ar
+RM = rm
+
+CDEBUG = -g
+
+INC_DIR = ../include
+OBJ_DIR = ../obj
+LIB_DIR = ../lib
+BIN_DIR = ../bin
+
+all: $(LIB_DIR)/libCGL.a
+
+CPP_SRC = \
+CGLAccumBuffer.cpp \
+CGLColorBuffer.cpp \
+CGL.cpp \
+CGLDisplayList.cpp \
+CGL_gl.cpp \
+CGL_glu.cpp \
+CGL_glut.cpp \
+CGL_glx.cpp \
+CGLMenu.cpp \
+CGLNurbs.cpp \
+CGLQuadric.cpp \
+CGLTesselator.cpp \
+CGLWind.cpp \
+\
+CGeomAxes3D.cpp \
+CGeomBox3D.cpp \
+CGeomCamera3D.cpp \
+CGeomCone3D.cpp \
+CGeomCube3D.cpp \
+CGeomCylinder3D.cpp \
+CGeometry3D.cpp \
+CGeomFace3D.cpp \
+CGeomFill3D.cpp \
+CGeomLight3D.cpp \
+CGeomLine3D.cpp \
+CGeomObject3D.cpp \
+CGeomParticle3D.cpp \
+CGeomPoint3D.cpp \
+CGeomPyramid3D.cpp \
+CGeomScene3D.cpp \
+CGeomSphere3D.cpp \
+CGeomTorus3D.cpp \
+CGeomTriangle3D.cpp \
+CGeomUtil3D.cpp \
+CGeomVertex3D.cpp \
+\
+CXMenu.cpp \
+\
+CMenuButton.cpp \
+CMenu.cpp \
+CMenuFormatter.cpp \
+CMenuItem.cpp \
+CMenuSeparator.cpp \
+CMenuTitle.cpp \
+\
+CXLibPixelRenderer.cpp \
+CPixelRenderer.cpp \
+CImagePixelRenderer.cpp \
+CGUIPixelRenderer.cpp \
+\
+CPixelClip.cpp \
+CSymbol2D.cpp \
+\
+CFreeType.cpp \
+
+CPP_OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(CPP_SRC))
+
+CFLAGS = \
+-std=c++11 \
+$(CDEBUG) \
+-I$(INC_DIR) \
+-I. \
+-I../../CXLib/include \
+-I../../CImageLib/include \
+-I../../CFont/include \
+-I../../CMath/include \
+-I../../CFile/include \
+-I../../CConfig/include \
+-I../../CTimer/include \
+-I../../CArgs/include \
+-I../../CStrUtil/include \
+-I../../COS/include \
+-I../../CUtil/include \
+-I/usr/include/freetype2 \
+
+clean:
+	$(RM) -f $(OBJ_DIR)/*.o
+	$(RM) -f $(LIB_DIR)/libCGL.a
+
+.SUFFIXES: .cpp
+
+$(CPP_OBJS): $(OBJ_DIR)/%.o: %.cpp
+	$(CPP_CC) -c $< -o $(OBJ_DIR)/$*.o $(CFLAGS)
+
+$(LIB_DIR)/libCGL.a: $(CPP_OBJS)
+	$(AR) crv $(LIB_DIR)/libCGL.a $(CPP_OBJS)
