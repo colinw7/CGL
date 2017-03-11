@@ -20,11 +20,6 @@ glut_whale.cpp \
 
 OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
-LIBS = \
--lCGL -lCXLib -lCConfig -lCImageLib -lCFont -lCTimer -lCArgs \
--lCFile -lCFileUtil -lCUtil -lCOS -lCStrUtil -lCRegExp \
--lXt -lX11 -lfreetype -lpng -ljpeg -ltre
-
 CPPFLAGS = \
 -I../../include \
 -I../../../CGL/include \
@@ -44,6 +39,7 @@ LFLAGS = \
 -L$(LIB_DIR) \
 -L../../../CGL/lib \
 -L../../../CXLib/lib \
+-L../../../CRenderer/lib \
 -L../../../CImageLib/lib \
 -L../../../CFont/lib \
 -L../../../CArgs/lib \
@@ -56,6 +52,11 @@ LFLAGS = \
 -L../../../CUtil/lib \
 -L../../../CTimer/lib \
 -L../../../CRegExp/lib \
+
+LIBS = \
+-lCGL -lCXLib -lCConfig -lCXRenderer -lCRenderer -lCImageLib -lCFont -lCTimer -lCArgs \
+-lCFile -lCFileUtil -lCUtil -lCOS -lCStrUtil -lCRegExp \
+-lXt -lX11 -lfreetype -lpng -ljpeg -ltre
 
 clean:
 	$(RM) -f $(OBJ_DIR)/*.o
