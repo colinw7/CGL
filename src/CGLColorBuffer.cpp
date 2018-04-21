@@ -3,6 +3,7 @@
 #include <CGeomVertex3D.h>
 #include <CGeomLight3D.h>
 #include <CPixelRenderer.h>
+#include <CMathRound.h>
 
 CGLColorBuffer::
 CGLColorBuffer(CGL *gl, uint width, uint height) :
@@ -106,14 +107,14 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
   // get y limits
   const CPoint3D &pixel = vertices[0]->getPixel();
 
-  int ypmin = CMathGen::RoundUp  (pixel.y);
-  int ypmax = CMathGen::RoundDown(pixel.y);
+  int ypmin = CMathRound::RoundUp  (pixel.y);
+  int ypmax = CMathRound::RoundDown(pixel.y);
 
   for (uint i1 = 1; i1 < num_vertices; ++i1) {
     const CPoint3D &pixel = vertices[i1]->getPixel();
 
-    ypmin = std::min(ypmin, CMathGen::RoundUp  (pixel.y));
-    ypmax = std::max(ypmax, CMathGen::RoundDown(pixel.y));
+    ypmin = std::min(ypmin, CMathRound::RoundUp  (pixel.y));
+    ypmax = std::max(ypmax, CMathRound::RoundDown(pixel.y));
   }
 
   ypmin = std::max(ypmin, 0);
@@ -161,14 +162,14 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
 
       // update min and/or max
       if (! set) {
-        xpmin = CMathGen::RoundUp  (xp); i1min = i1; i2min = i2;
-        xpmax = CMathGen::RoundDown(xp); i1max = i1; i2max = i2;
+        xpmin = CMathRound::RoundUp  (xp); i1min = i1; i2min = i2;
+        xpmax = CMathRound::RoundDown(xp); i1max = i1; i2max = i2;
 
         set = true;
       }
       else {
-        int ixp1 = CMathGen::RoundUp  (xp);
-        int ixp2 = CMathGen::RoundDown(xp);
+        int ixp1 = CMathRound::RoundUp  (xp);
+        int ixp2 = CMathRound::RoundDown(xp);
 
         if (ixp1 < xpmin) {
           xpmin = ixp1; i1min = i1; i2min = i2;

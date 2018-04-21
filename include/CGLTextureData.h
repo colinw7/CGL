@@ -1,5 +1,4 @@
 #include <CStrUtil.h>
-#include <CImageMgr.h>
 
 struct CGLTextureKey {
   uint ind;

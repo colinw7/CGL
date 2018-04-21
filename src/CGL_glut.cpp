@@ -912,8 +912,6 @@ glutWireCube(GLdouble size)
 void
 glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 {
-  static const double EPSILON_E6 = 1E-6;
-
   std::vector<double> c; c.resize(num_patches);
   std::vector<double> s; s.resize(num_patches);
 
@@ -938,7 +936,7 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
   std::vector<CPoint3D> points ; points .resize(num_patches*num_xy);
   std::vector<CPoint3D> normals; normals.resize(num_patches*num_xy);
 
-  if (fabs(x[0]) < EPSILON_E6) {
+  if (fabs(x[0]) < CMathGen::EPSILON_E6) {
     points [num_points] = CPoint3D(0.0, y[0], 0.0);
     normals[num_points] = CPoint3D(0.0, y[0], 0.0);
 
@@ -961,7 +959,7 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
   }
 
   for (int j = 1; j < num_xy; j++) {
-    if (fabs(x[j]) < EPSILON_E6) {
+    if (fabs(x[j]) < CMathGen::EPSILON_E6) {
       points [num_points] = CPoint3D(0.0, y[j], 0.0);
       normals[num_points] = CPoint3D(0.0, y[j], 0.0);
 
@@ -1089,8 +1087,6 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 void
 glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
 {
-  static const double EPSILON_E6 = 1E-6;
-
   std::vector<double> c; c.resize(num_patches);
   std::vector<double> s; s.resize(num_patches);
 
@@ -1115,7 +1111,7 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
   std::vector<CPoint3D> points ; points .resize(num_patches*num_xy);
   std::vector<CPoint3D> normals; normals.resize(num_patches*num_xy);
 
-  if (fabs(y[0]) < EPSILON_E6) {
+  if (fabs(y[0]) < CMathGen::EPSILON_E6) {
     points [num_points] = CPoint3D(x[0], 0.0, 0.0);
     normals[num_points] = CPoint3D(x[0], 0.0, 0.0);
 
@@ -1138,7 +1134,7 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
   }
 
   for (int j = 1; j < num_xy; j++) {
-    if (fabs(y[j]) < EPSILON_E6) {
+    if (fabs(y[j]) < CMathGen::EPSILON_E6) {
       points [num_points] = CPoint3D(x[j], 0.0, 0.0);
       normals[num_points] = CPoint3D(x[j], 0.0, 0.0);
 

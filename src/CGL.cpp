@@ -10,6 +10,7 @@
 #include <CXLibPixelRenderer.h>
 #include <CImagePixelRenderer.h>
 #include <CGeomUtil3D.h>
+#include <CMathRound.h>
 #include <CStrUtil.h>
 #include <climits>
 
@@ -807,7 +808,7 @@ drawPoint(CGeomVertex3D *vertex)
                                vertex->getTextureMap());
 
   if (point_size_ > 1.5) {
-    uint diameter = CMathGen::Round(point_size_);
+    uint diameter = CMathRound::Round(point_size_);
 
     uint radius = diameter >> 1;
 
@@ -819,7 +820,7 @@ drawPoint(CGeomVertex3D *vertex)
     }
 
     for (uint y = 1; y <= radius; ++y) {
-      uint width = CMathGen::Round(sqrt(radius2 - y*y));
+      uint width = CMathRound::Round(sqrt(radius2 - y*y));
 
       for (uint x = uint(point.x) - width; x < uint(point.x) + width; ++x) {
         getColorBuffer().setPoint(x, uint(point.y) + y, bpoint, viewed.z);

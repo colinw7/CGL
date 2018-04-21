@@ -6,8 +6,6 @@
 #include <CMatrix3DH.h>
 #include <vector>
 
-typedef unsigned char uchar;
-
 class CGL;
 
 class CGLDisplayListCmd {
@@ -140,6 +138,8 @@ class CGLDisplayListSetMaterialV : public CGLDisplayListCmd {
 
 class CGLDisplayListBitmap : public CGLDisplayListCmd {
  private:
+  typedef unsigned char uchar;
+
   uint    width_, height_;
   double  xorig_, yorig_;
   double  xmove_, ymove_;
@@ -175,6 +175,8 @@ class CGLDisplayListEndBlock : public CGLDisplayListCmd {
 
 class CGLDisplayList {
  private:
+  typedef unsigned char uchar;
+
   typedef std::vector<CGLDisplayListCmd *> CmdList;
 
   static uint current_id_;

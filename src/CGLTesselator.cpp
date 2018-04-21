@@ -1,7 +1,6 @@
 #include <CGLTesselator.h>
 #include <CLine2D.h>
 #include <CGL_glu.h>
-#include <list>
 
 class CGLTriangulate {
  private:
