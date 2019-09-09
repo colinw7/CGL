@@ -1332,9 +1332,9 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
             glTexCoord2f(1 - (float) i / slices,
                          1 - (float) j / stacks);
 
-            glVertex3f(sintemp1 * sinCache1a[i],
-                       sintemp1 * cosCache1a[i], costemp1);
-          }
+          glVertex3f(sintemp1 * sinCache1a[i],
+                     sintemp1 * cosCache1a[i], costemp1);
+        }
       }
 
       glEnd();
