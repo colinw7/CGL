@@ -1738,7 +1738,8 @@ drawRGBAImage(uint width, uint height, const uchar *image, uint num_components, 
     int dx = fwidth  >> 1;
     int dy = fheight >> 1;
 
-    memcpy(image_buffer2, image_buffer1, image_buffer_size*sizeof(CRGBA));
+    for (uint i = 0; i < image_buffer_size; ++i)
+      image_buffer2[i] = image_buffer1[i];
 
     for (uint y = dy; y < height - dy; ++y) {
       op = &image_buffer1[y*width + dx];
@@ -1831,10 +1832,10 @@ drawRGBAImage(uint width, uint height, const uchar *image, uint num_components, 
     for (uint x = 0; x < width; ++x, xp1 = xp2, xp2 += xs, ++op) {
       bpoint.rgba = *op;
 
-      uint nx = abs(uint(xp2) - uint(xp1));
+      uint nx = std::abs(int(xp2) - int(xp1));
 
       for (uint ix = 0, xs1 = uint(xp1); ix <= nx; ++ix, ++xs1) {
-        uint ny = abs(uint(yp2) - uint(yp1));
+        uint ny = std::abs(int(yp2) - int(yp1));
 
         for (uint iy = 0, ys1 = uint(yp1); iy <= ny; ++iy, ++ys1) {
           color_buffer.setPoint(xs1, ys1, bpoint, viewed.z);

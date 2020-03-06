@@ -14,7 +14,8 @@ class CGLConvolutionFilter2D {
     setType(filter.type_);
     setSize(filter.width_, filter.height_);
 
-    memcpy(values_, filter.values_, width_*height_*sizeof(CRGBA));
+    for (uint i = 0; i < width_*height_; ++i)
+      values_[i] = filter.values_[i];
   }
 
  ~CGLConvolutionFilter2D() {
@@ -26,7 +27,8 @@ class CGLConvolutionFilter2D {
     setType(filter.type_);
     setSize(filter.width_, filter.height_);
 
-    memcpy(values_, filter.values_, width_*height_*sizeof(CRGBA));
+    for (uint i = 0; i < width_*height_; ++i)
+      values_[i] = filter.values_[i];
 
     return *this;
   }

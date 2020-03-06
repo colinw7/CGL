@@ -16,7 +16,8 @@ class CGLHistogram {
     setWidth(histogram.width_);
     setSink (histogram.sink_ );
 
-    memcpy(values_, histogram.values_, width_*sizeof(CRGBA));
+    for (uint i = 0; i < width_; ++i)
+      values_[i] = histogram.values_[i];
   }
 
  ~CGLHistogram() {
@@ -28,7 +29,8 @@ class CGLHistogram {
     setWidth(histogram.width_);
     setSink (histogram.sink_ );
 
-    memcpy(values_, histogram.values_, width_*sizeof(CRGBA));
+    for (uint i = 0; i < width_; ++i)
+      values_[i] = histogram.values_[i];
 
     return *this;
   }

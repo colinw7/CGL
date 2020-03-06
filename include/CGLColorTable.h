@@ -14,7 +14,8 @@ class CGLColorTable {
     setType(color_table.type_);
     setSize(color_table.width_);
 
-    memcpy(values_, color_table.values_, width_*sizeof(CRGBA));
+    for (uint i = 0; i < width_; ++i)
+      values_[i] = color_table.values_[i];
   }
 
  ~CGLColorTable() {
@@ -25,7 +26,8 @@ class CGLColorTable {
     setType(color_table.type_);
     setSize(color_table.width_);
 
-    memcpy(values_, color_table.values_, width_*sizeof(CRGBA));
+    for (uint i = 0; i < width_; ++i)
+      values_[i] = color_table.values_[i];
 
     return *this;
   }
