@@ -60,9 +60,9 @@ class CGLMap2 {
 
     *u1 = 0;
 
-    for (uint v = 0, i = 0; v < num_vvalues_; ++v) {
-      for (uint u = 0; u < num_uvalues_; ++u, i += 1) {
-        *u1 += bu[u]*bv[v]*values_[i + 0];
+    for (uint vv = 0, i = 0; vv < num_vvalues_; ++vv) {
+      for (uint uu = 0; uu < num_uvalues_; ++uu, i += 1) {
+        *u1 += bu[uu]*bv[vv]*values_[i + 0];
       }
     }
   }
@@ -74,51 +74,48 @@ class CGLMap2 {
 
     *u1 = 0; *u2 = 0;
 
-    for (uint v = 0, i = 0; v < num_vvalues_; ++v) {
-      for (uint u = 0; u < num_uvalues_; ++u, i += 2) {
-        *u1 += bu[u]*bv[v]*values_[i + 0];
-        *u2 += bu[u]*bv[v]*values_[i + 1];
+    for (uint vv = 0, i = 0; vv < num_vvalues_; ++vv) {
+      for (uint uu = 0; uu < num_uvalues_; ++uu, i += 2) {
+        *u1 += bu[uu]*bv[vv]*values_[i + 0];
+        *u2 += bu[uu]*bv[vv]*values_[i + 1];
       }
     }
   }
 
-  void calcBernstein3(double u, double v, double *u1, double *u2,
-                      double *u3) const {
+  void calcBernstein3(double u, double v, double *u1, double *u2, double *u3) const {
     double *bu, *bv;
 
     calcBernstein(u, v, num_uvalues_, num_vvalues_, &bu, &bv);
 
     *u1 = 0; *u2 = 0; *u3 = 0;
 
-    for (uint v = 0, i = 0; v < num_vvalues_; ++v) {
-      for (uint u = 0; u < num_uvalues_; ++u, i += 3) {
-        *u1 += bu[u]*bv[v]*values_[i + 0];
-        *u2 += bu[u]*bv[v]*values_[i + 1];
-        *u3 += bu[u]*bv[v]*values_[i + 2];
+    for (uint vv = 0, i = 0; vv < num_vvalues_; ++vv) {
+      for (uint uu = 0; uu < num_uvalues_; ++uu, i += 3) {
+        *u1 += bu[uu]*bv[vv]*values_[i + 0];
+        *u2 += bu[uu]*bv[vv]*values_[i + 1];
+        *u3 += bu[uu]*bv[vv]*values_[i + 2];
       }
     }
   }
 
-  void calcBernstein4(double u, double v, double *u1, double *u2,
-                      double *u3, double *u4) const {
+  void calcBernstein4(double u, double v, double *u1, double *u2, double *u3, double *u4) const {
     double *bu, *bv;
 
     calcBernstein(u, v, num_uvalues_, num_vvalues_, &bu, &bv);
 
     *u1 = 0; *u2 = 0; *u3 = 0; *u4 = 0;
 
-    for (uint v = 0, i = 0; v < num_vvalues_; ++v) {
-      for (uint u = 0; u < num_uvalues_; ++u, i += 4) {
-        *u1 += bu[u]*bv[v]*values_[i + 0];
-        *u2 += bu[u]*bv[v]*values_[i + 1];
-        *u3 += bu[u]*bv[v]*values_[i + 2];
-        *u4 += bu[u]*bv[v]*values_[i + 3];
+    for (uint vv = 0, i = 0; vv < num_vvalues_; ++vv) {
+      for (uint uu = 0; uu < num_uvalues_; ++uu, i += 4) {
+        *u1 += bu[uu]*bv[vv]*values_[i + 0];
+        *u2 += bu[uu]*bv[vv]*values_[i + 1];
+        *u3 += bu[uu]*bv[vv]*values_[i + 2];
+        *u4 += bu[uu]*bv[vv]*values_[i + 3];
       }
     }
   }
 
-  void calcBernstein(double u, double v,
-                     uint num_uvalues, uint num_vvalues,
+  void calcBernstein(double u, double v, uint num_uvalues, uint num_vvalues,
                      double **bu1, double **bv1) const {
     enum { MAX_VALUES = 32 };
 

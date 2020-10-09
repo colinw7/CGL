@@ -51,11 +51,6 @@ struct GLUTessContour {
 };
 
 class GLUTessPolygon {
- private:
-  void                          *data_;
-  std::vector<GLUTessContour *>  contours_;
-  GLUTessContour *               contour_;
-
  public:
   GLUTessPolygon(void *data) :
    data_(data), contour_(NULL) {
@@ -68,6 +63,8 @@ class GLUTessPolygon {
     for ( ; p1 != p2; ++p1)
       delete *p1;
   }
+
+  void *data() const { return data_; }
 
   void startContour() {
     assert(! contour_);
@@ -103,6 +100,11 @@ class GLUTessPolygon {
 
     return vertices;
   }
+
+ private:
+  void                          *data_;
+  std::vector<GLUTessContour *>  contours_;
+  GLUTessContour *               contour_;
 };
 
 class GLUtesselator {

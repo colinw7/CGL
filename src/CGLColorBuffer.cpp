@@ -111,10 +111,10 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
   int ypmax = CMathRound::RoundDown(pixel.y);
 
   for (uint i1 = 1; i1 < num_vertices; ++i1) {
-    const CPoint3D &pixel = vertices[i1]->getPixel();
+    const CPoint3D &vpixel = vertices[i1]->getPixel();
 
-    ypmin = std::min(ypmin, CMathRound::RoundUp  (pixel.y));
-    ypmax = std::max(ypmax, CMathRound::RoundDown(pixel.y));
+    ypmin = std::min(ypmin, CMathRound::RoundUp  (vpixel.y));
+    ypmax = std::max(ypmax, CMathRound::RoundDown(vpixel.y));
   }
 
   ypmin = std::max(ypmin, 0);
@@ -329,26 +329,25 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
       continue;
 
     if (xpmin < 0) {
-      int d = -xpmin;
+      int dx = -xpmin;
 
       if (! gl_->getFlatShading())
-        point.rgba += d*drgba;
+        point.rgba += dx*drgba;
 
       if (getSmooth())
-        point.normal += d*dnormal;
+        point.normal += dx*dnormal;
 
       if (gl_->getTexture1Data().getEnabled() ||
           gl_->getTexture2Data().getEnabled() ||
           gl_->getTexture3Data().getEnabled())
-        point.tmap += d*dt;
+        point.tmap += dx*dt;
 
       xpmin = 0;
     }
 
-    for (int xp = xpmin; xp <= xpmax && xp < w;
-           ++xp, point.z += dzp, zv += dzv) {
-      if (xp >= 0)
-        setPoint(xp, yp, point, zv);
+    for (int xp1 = xpmin; xp1 <= xpmax && xp1 < w; ++xp1, point.z += dzp, zv += dzv) {
+      if (xp1 >= 0)
+        setPoint(xp1, yp, point, zv);
 
       if (! gl_->getFlatShading())
         point.rgba += drgba;
@@ -853,9 +852,9 @@ setPoint(uint x, uint y, const Point &point, double zv)
 
     int w = texture->getWidth();
 
-    int x = std::min(std::max(int(point.tmap.x*(w - 1)), 0), w - 1);
+    int tx = std::min(std::max(int(point.tmap.x*(w - 1)), 0), w - 1);
 
-    texture->getRGBAPixel(x, 0, ppoint->rgba);
+    texture->getRGBAPixel(tx, 0, ppoint->rgba);
   }
 
   if (gl_->getTexture2Data().getEnabled()) {
@@ -877,7 +876,7 @@ setPoint(uint x, uint y, const Point &point, double zv)
 
       uint wrap_s = gl_->getTexture2Data().getWrapS();
 
-      double tx;
+      double tx { 0.0 };
 
       if      (wrap_s == GL_CLAMP)
         tx = point.tmap.x;
@@ -892,11 +891,11 @@ setPoint(uint x, uint y, const Point &point, double zv)
         if (tx < 0) tx = 1 + tx;
       }
 
-      int x = std::min(std::max(int(tx*(w - 1)), 0), w - 1);
+      int xx = std::min(std::max(int(tx*(w - 1)), 0), w - 1);
 
       uint wrap_t = gl_->getTexture2Data().getWrapT();
 
-      double ty;
+      double ty { 0.0 };
 
       if      (wrap_t == GL_CLAMP)
         ty = point.tmap.y;
@@ -911,11 +910,11 @@ setPoint(uint x, uint y, const Point &point, double zv)
         if (ty < 0) ty = 1 + ty;
       }
 
-      int y = std::min(std::max(int(ty*(h - 1)), 0), h - 1);
+      int yy = std::min(std::max(int(ty*(h - 1)), 0), h - 1);
 
       CRGBA rgbat;
 
-      texture->getRGBAPixel(x, y, rgbat);
+      texture->getRGBAPixel(xx, yy, rgbat);
 
       CRGBA rgbaf = ppoint->rgba;
 
@@ -1076,11 +1075,11 @@ setPoint(uint x, uint y, const Point &point, double zv)
         int w = texture[0]->getWidth ();
         int h = texture[0]->getHeight();
 
-        int x = std::min(std::max(int(point.tmap.x*(w - 1)), 0), w - 1);
-        int y = std::min(std::max(int(point.tmap.y*(h - 1)), 0), h - 1);
-        int z = std::min(std::max(int(point.tmap.z*(d - 1)), 0), d - 1);
+        int x1 = std::min(std::max(int(point.tmap.x*(w - 1)), 0), w - 1);
+        int y1 = std::min(std::max(int(point.tmap.y*(h - 1)), 0), h - 1);
+        int z1 = std::min(std::max(int(point.tmap.z*(d - 1)), 0), d - 1);
 
-        texture[z]->getRGBAPixel(x, y, ppoint->rgba);
+        texture[z1]->getRGBAPixel(x1, y1, ppoint->rgba);
       }
     }
   }

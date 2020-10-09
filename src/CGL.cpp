@@ -984,24 +984,24 @@ drawPolygon(uint mode, const VertexList &vertices)
 
     feedback.append(data, 1);
 
-    VertexList::const_iterator p1 = vertices.begin();
-    VertexList::const_iterator p2 = vertices.end  ();
+    VertexList::const_iterator pv1 = vertices.begin();
+    VertexList::const_iterator pv2 = vertices.end  ();
 
-    for ( ; p1 != p2; ++p1)
-      feedback.append(*p1);
+    for ( ; pv1 != pv2; ++pv1)
+      feedback.append(*pv1);
 
     return;
   }
   else if (getRenderMode() == GL_SELECT) {
     CGLSelectBuffer &select = modifySelectBuffer();
 
-    VertexList::const_iterator p1 = vertices.begin();
-    VertexList::const_iterator p2 = vertices.end  ();
+    VertexList::const_iterator pv1 = vertices.begin();
+    VertexList::const_iterator pv2 = vertices.end  ();
 
     int min_z = INT_MAX; int max_z = -INT_MAX;
 
-    for ( ; p1 != p2; ++p1) {
-      const CPoint3D &point = (*p1)->getProjected();
+    for ( ; pv1 != pv2; ++pv1) {
+      const CPoint3D &point = (*pv1)->getProjected();
 
       int iz = int(INT_MAX*((std::min(std::max(point.z, -1.0), 1.0) + 1)/2.0));
 
@@ -1887,12 +1887,12 @@ readColorImage(int x, int y, uint width, uint height, uchar *pixels,
 
     if (num_components == 4) {
       for (uint x1 = 0; x1 < width; ++x1, xp += 1, p += 4) {
-        const CGLColorBuffer::Point &point = color_buffer.getPoint(uint(xp), uint(yp));
+        const CGLColorBuffer::Point &xpoint = color_buffer.getPoint(uint(xp), uint(yp));
 
-        r = point.rgba.getRed  ();
-        g = point.rgba.getGreen();
-        b = point.rgba.getBlue ();
-        a = point.rgba.getAlpha();
+        r = xpoint.rgba.getRed  ();
+        g = xpoint.rgba.getGreen();
+        b = xpoint.rgba.getBlue ();
+        a = xpoint.rgba.getAlpha();
 
         if (process) {
           r = r*pixel_transfer.getRedScale  () + pixel_transfer.getRedBias  ();
@@ -1909,11 +1909,11 @@ readColorImage(int x, int y, uint width, uint height, uchar *pixels,
     }
     else {
       for (uint x1 = 0; x1 < width; ++x1, xp += 1, p += 3) {
-        const CGLColorBuffer::Point &point = color_buffer.getPoint(uint(xp), uint(yp));
+        const CGLColorBuffer::Point &xpoint = color_buffer.getPoint(uint(xp), uint(yp));
 
-        r = point.rgba.getRed  ();
-        g = point.rgba.getGreen();
-        b = point.rgba.getBlue ();
+        r = xpoint.rgba.getRed  ();
+        g = xpoint.rgba.getGreen();
+        b = xpoint.rgba.getBlue ();
 
         if (process) {
           r = r*pixel_transfer.getRedScale  () + pixel_transfer.getRedBias  ();

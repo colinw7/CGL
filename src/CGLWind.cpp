@@ -603,8 +603,8 @@ setMenu(int button, uint menu_id)
   if (button != -1)
     menu_map_[button] = menu_id;
   else {
-    for (int button = 0; button <= 5; ++button) {
-      MenuMap::iterator p = menu_map_.find(button);
+    for (int mbutton = 0; mbutton <= 5; ++mbutton) {
+      MenuMap::iterator p = menu_map_.find(mbutton);
 
       if (p != menu_map_.end())
         menu_map_.erase(p);

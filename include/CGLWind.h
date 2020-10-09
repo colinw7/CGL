@@ -18,12 +18,9 @@ class CXWindow;
 
 #define CGLWindMgrInst CGLWindMgr::getInstance()
 
-class CGLWindMgr
-{
+class CGLWindMgr {
  private:
   typedef std::list<CGLWind *> WindowList;
-
-  WindowList windows_;
 
  public:
   static CGLWindMgr *getInstance() {
@@ -42,26 +39,12 @@ class CGLWindMgr
 
  private:
   CGLWindMgr() { }
+
+ private:
+  WindowList windows_;
 };
 
-class CGLWind
-{
- private:
-  typedef std::map<int,uint> MenuMap;
-
-  CGL                 *cgl_;
-  CGLWind             *parent_;
-  CXWindow            *window_;
-  CXLibPixelRenderer  *renderer_;
-  uint                 id_;
-  CGLFuncs             funcs_;
-  CGLWindEventAdapter *event_handler_;
-  MenuMap              menu_map_;
-  uint                 mouse_button_;
-  CGLWindTimer        *timer_;
-  int                  cursor_;
-  bool                 redisplay_;
-
+class CGLWind {
  public:
   CGLWind(int x, int y, int w, int h);
 
@@ -70,6 +53,10 @@ class CGLWind
  ~CGLWind();
 
   CGL *getGL() const { return cgl_; }
+
+  CGLWind *getParent() const { return parent_; }
+
+  CGLWindTimer *timer() const { return timer_; }
 
   ACCESSOR(Id, uint, id)
 
@@ -128,6 +115,22 @@ class CGLWind
   void idle();
 
   void setMenu(int button, uint menu_id);
+
+ private:
+  typedef std::map<int,uint> MenuMap;
+
+  CGL                 *cgl_;
+  CGLWind             *parent_;
+  CXWindow            *window_;
+  CXLibPixelRenderer  *renderer_;
+  uint                 id_;
+  CGLFuncs             funcs_;
+  CGLWindEventAdapter *event_handler_;
+  MenuMap              menu_map_;
+  uint                 mouse_button_;
+  CGLWindTimer        *timer_;
+  int                  cursor_;
+  bool                 redisplay_;
 };
 
 #endif
