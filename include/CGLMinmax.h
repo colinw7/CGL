@@ -17,7 +17,7 @@ class CGLMinmax {
  ~CGLMinmax() {
   }
 
-  const CGLMinmax &operator=(const CGLMinmax &minmax) {
+  CGLMinmax &operator=(const CGLMinmax &minmax) {
     type_ = minmax.type_;
     minv_ = minmax.minv_;
     maxv_ = minmax.maxv_;

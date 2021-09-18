@@ -24,7 +24,7 @@ class CGLHistogram {
     delete [] values_;
   }
 
-  const CGLHistogram &operator=(const CGLHistogram &histogram) {
+  CGLHistogram &operator=(const CGLHistogram &histogram) {
     setType (histogram.type_ );
     setWidth(histogram.width_);
     setSink (histogram.sink_ );

@@ -22,7 +22,7 @@ class CGLColorTable {
     delete [] values_;
   }
 
-  const CGLColorTable &operator=(const CGLColorTable &color_table) {
+  CGLColorTable &operator=(const CGLColorTable &color_table) {
     setType(color_table.type_);
     setSize(color_table.width_);
 
