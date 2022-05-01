@@ -27,6 +27,12 @@ CGLTexture()
 }
 
 CGLTexture::
+CGLTexture(const CImagePtr &image)
+{
+  setImage(image);
+}
+
+CGLTexture::
 ~CGLTexture()
 {
   if (valid_ && glIsTexture(id_))
@@ -63,7 +69,7 @@ load(CImagePtr image, bool flip)
 
 void
 CGLTexture::
-setImage(CImagePtr image)
+setImage(const CImagePtr &image)
 {
   init(image, false);
 }

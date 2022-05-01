@@ -13,6 +13,8 @@ class CGLTexture {
 
  public:
   CGLTexture();
+  CGLTexture(const CImagePtr &image);
+
  ~CGLTexture();
 
   const WrapType &wrapType() const { return wrapType_; }
@@ -25,7 +27,7 @@ class CGLTexture {
 
   bool load(CImagePtr image, bool flip=false);
 
-  void setImage(CImagePtr image);
+  void setImage(const CImagePtr &image);
 
   void bindTo(GLenum num) const;
   void bind() const;

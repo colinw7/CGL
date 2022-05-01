@@ -61,15 +61,17 @@ class CGLShader {
     attach(Type::Geometry);
   }
 
-  void link() {
+  bool link() {
     glLinkProgram(program_);
 
-    checkCompileErrors(Type::Program, program_);
+    bool rc = checkCompileErrors(Type::Program, program_);
 
     for (const auto &pi : shaderIds_)
       glDeleteShader(pi.second);
 
     shaderIds_.clear();
+
+    return rc;
   }
 
   void use() {
@@ -194,7 +196,8 @@ class CGLShader {
 
     glCompileShader(shaderIds_[type]);
 
-    checkCompileErrors(type, shaderIds_[type]);
+    if (! checkCompileErrors(type, shaderIds_[type]))
+      return false;
 
     return true;
   }
@@ -206,7 +209,8 @@ class CGLShader {
 
     glCompileShader(shaderIds_[type]);
 
-    checkCompileErrors(type, shaderIds_[type]);
+    if (! checkCompileErrors(type, shaderIds_[type]))
+      return false;
 
     return true;
   }
@@ -215,7 +219,9 @@ class CGLShader {
     glAttachShader(program_, shaderIds_[type]);
   }
 
-  void checkCompileErrors(Type type, GLuint shader) {
+  bool checkCompileErrors(Type type, GLuint shader) {
+    bool rc = true;
+
     GLint success;
 
     GLchar infoLog[1024];
@@ -229,6 +235,7 @@ class CGLShader {
         glGetShaderInfoLog(shader, 1024, NULL, infoLog);
         std::cerr << "ERROR: Shader Compilation Error Type: " <<
                      typeName << "\n" << infoLog << "\n";
+        rc = false;
       }
     }
     else {
@@ -238,8 +245,11 @@ class CGLShader {
         glGetProgramInfoLog(shader, 1024, NULL, infoLog);
         std::cerr << "ERROR:: Program Linking Error Type: " <<
                      typeName << "\n" << infoLog << "\n";
+        rc = false;
       }
     }
+
+    return rc;
   }
 
   std::string typeName(Type type) const {
