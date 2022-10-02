@@ -43,7 +43,7 @@ gluBuild2DMipmaps(GLenum target, GLint internalFormat, GLsizei width,
     return -1;
   }
 
-  uint size = std::max(width, height);
+  auto size = std::max(width, height);
 
   int depth = 1;
 
@@ -62,7 +62,7 @@ gluBuild2DMipmaps(GLenum target, GLint internalFormat, GLsizei width,
   glTexImage2D(target, 0, internalFormat, width, height, 0, format, type, data);
 
   for (level = 1; level < depth; ++level) {
-    CGLTextureKey key(ind, level - 1);
+    CGLTextureKey key(ind, uint(level - 1));
 
     CImagePtr image = gl->modifyTexture2Data().getTextureImage(key);
 
@@ -71,7 +71,7 @@ gluBuild2DMipmaps(GLenum target, GLint internalFormat, GLsizei width,
 
     CImagePtr image1 = image->resize(CISize2D(w, h));
 
-    key = CGLTextureKey(ind, level);
+    key = CGLTextureKey(ind, uint(level));
 
     gl->modifyTexture2Data().setTexture(key, image1, internalFormat);
   }
@@ -111,8 +111,8 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
   }
 
   /* Compute length (needed for normal calculations) */
-  delta  = base - top;
-  length = ::sqrt(delta*delta + height*height);
+  delta  = GLfloat(base - top);
+  length = GLfloat(std::sqrt(delta*delta + height*height));
 
   if (length == 0.0) {
     gluQuadricError(quad, GLU_INVALID_VALUE);
@@ -135,38 +135,38 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
       needCache2 = 1;
   }
 
-  zNormal       = delta  / length;
-  xyNormalRatio = height / length;
+  zNormal       = GLfloat(delta  / length);
+  xyNormalRatio = GLfloat(height / length);
 
   for (i = 0; i < slices; i++) {
-    angle = 2 * M_PI * i / slices;
+    angle = GLfloat(2 * M_PI * i / slices);
 
     if (needCache2) {
       if (quad->getOrientation() == GLU_OUTSIDE) {
-        sinCache2[i] = xyNormalRatio * ::sin(angle);
-        cosCache2[i] = xyNormalRatio * ::cos(angle);
+        sinCache2[i] = GLfloat(xyNormalRatio*std::sin(angle));
+        cosCache2[i] = GLfloat(xyNormalRatio*std::cos(angle));
       }
       else {
-        sinCache2[i] = -xyNormalRatio * ::sin(angle);
-        cosCache2[i] = -xyNormalRatio * ::cos(angle);
+        sinCache2[i] = GLfloat(-xyNormalRatio*std::sin(angle));
+        cosCache2[i] = GLfloat(-xyNormalRatio*std::cos(angle));
       }
     }
 
-    sinCache[i] = ::sin(angle);
-    cosCache[i] = ::cos(angle);
+    sinCache[i] = GLfloat(std::sin(angle));
+    cosCache[i] = GLfloat(std::cos(angle));
   }
 
   if (needCache3) {
     for (i = 0; i < slices; i++) {
-      angle = 2 * M_PI * (i-0.5) / slices;
+      angle = GLfloat(2 * M_PI * (i-0.5) / slices);
 
       if (quad->getOrientation() == GLU_OUTSIDE) {
-        sinCache3[i] = xyNormalRatio * ::sin(angle);
-        cosCache3[i] = xyNormalRatio * ::cos(angle);
+        sinCache3[i] = GLfloat(xyNormalRatio*std::sin(angle));
+        cosCache3[i] = GLfloat(xyNormalRatio*std::cos(angle));
       }
       else {
-        sinCache3[i] = -xyNormalRatio * ::sin(angle);
-        cosCache3[i] = -xyNormalRatio * ::cos(angle);
+        sinCache3[i] = GLfloat(-xyNormalRatio*std::sin(angle));
+        cosCache3[i] = GLfloat(-xyNormalRatio*std::cos(angle));
       }
     }
   }
@@ -198,11 +198,11 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
       ** alone.
       */
       for (j = 0; j < stacks; j++) {
-        zLow  =  j      * height / stacks;
-        zHigh = (j + 1) * height / stacks;
+        zLow  = GLfloat( j      * height / stacks);
+        zHigh = GLfloat((j + 1) * height / stacks);
 
-        radiusLow  = base - delta * ((float)  j      / stacks);
-        radiusHigh = base - delta * ((float) (j + 1) / stacks);
+        radiusLow  = GLfloat(base - delta*float((j    )/stacks));
+        radiusHigh = GLfloat(base - delta*float((j + 1)/stacks));
 
         glBegin(GL_QUAD_STRIP);
 
@@ -221,29 +221,25 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
 
           if (quad->getOrientation() == GLU_OUTSIDE) {
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices, (float) j / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), float(j)/float(stacks));
 
-            glVertex3f(radiusLow * sinCache[i],
-                       radiusLow * cosCache[i], zLow);
+            glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], zLow);
 
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices, (float) (j+1) / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), float(j + 1)/float(stacks));
 
-            glVertex3f(radiusHigh * sinCache[i],
-                       radiusHigh * cosCache[i], zHigh);
+            glVertex3f(radiusHigh * sinCache[i], radiusHigh * cosCache[i], zHigh);
           }
           else {
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices, (float) (j+1) / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), float(j + 1)/float(stacks));
 
-            glVertex3f(radiusHigh * sinCache[i],
-                       radiusHigh * cosCache[i], zHigh);
+            glVertex3f(radiusHigh * sinCache[i], radiusHigh * cosCache[i], zHigh);
 
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices, (float) j / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), float(j)/float(stacks));
 
-            glVertex3f(radiusLow * sinCache[i],
-                       radiusLow * cosCache[i], zLow);
+            glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], zLow);
           }
         }
 
@@ -269,12 +265,12 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
         costemp = cosCache[i];
 
         for (j = 0; j <= stacks; j++) {
-          zLow = j * height / stacks;
+          zLow = float(j)*float(height)/float(stacks);
 
-          radiusLow = base - delta * ((float) j / stacks);
+          radiusLow = GLfloat(base - delta*(float(j)/float(stacks)));
 
           if (quad->getTexture())
-            glTexCoord2f(1 - (float) i / slices, (float) j / stacks);
+            glTexCoord2f(1 - float(i)/float(slices), float(j)/float(stacks));
 
           glVertex3f(radiusLow * sintemp, radiusLow * costemp, zLow);
         }
@@ -285,9 +281,9 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
       break;
     case GLU_LINE:
       for (j = 1; j < stacks; j++) {
-        zLow = j * height / stacks;
+        zLow = float(j)*float(height)/float(stacks);
 
-        radiusLow = base - delta * ((float) j / stacks);
+        radiusLow = GLfloat(base - delta*(float(j)/float(stacks)));
 
         glBegin(GL_LINE_STRIP);
 
@@ -305,44 +301,42 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
           }
 
           if (quad->getTexture())
-            glTexCoord2f(1 - (float) i / slices, (float) j / stacks);
+            glTexCoord2f(1 - float(i)/float(slices), float(j)/float(stacks));
 
-          glVertex3f(radiusLow * sinCache[i],
-                    radiusLow * cosCache[i], zLow);
+          glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], zLow);
         }
 
         glEnd();
       }
 
       /* Intentionally fall through here... */
+      [[fallthrough]];
     case GLU_SILHOUETTE:
       for (j = 0; j <= stacks; j += stacks) {
-        zLow = j * height / stacks;
+        zLow = float(j)*float(height)/float(stacks);
 
-        radiusLow = base - delta * ((float) j / stacks);
+        radiusLow = GLfloat(base - delta*(float(j)/float(stacks)));
 
         glBegin(GL_LINE_STRIP);
 
         for (i = 0; i <= slices; i++) {
           switch (quad->getNormals()) {
-                case GLU_FLAT:
-                  glNormal3f(sinCache3[i], cosCache3[i], zNormal);
-                  break;
-                case GLU_SMOOTH:
-                  glNormal3f(sinCache2[i], cosCache2[i], zNormal);
-                  break;
-                case GLU_NONE:
-                default:
-                  break;
-              }
-              if (quad->getTexture()) {
-                  glTexCoord2f(1 - (float) i / slices,
-                          (float) j / stacks);
-              }
-              glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i],
-                      zLow);
+            case GLU_FLAT:
+              glNormal3f(sinCache3[i], cosCache3[i], zNormal);
+              break;
+            case GLU_SMOOTH:
+              glNormal3f(sinCache2[i], cosCache2[i], zNormal);
+              break;
+            case GLU_NONE:
+            default:
+              break;
           }
-          glEnd();
+          if (quad->getTexture()) {
+            glTexCoord2f(1 - float(i)/float(slices), float(j)/float(stacks));
+          }
+          glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], zLow);
+        }
+        glEnd();
       }
 
       for (i = 0; i < slices; i++) {
@@ -362,12 +356,12 @@ gluCylinder(GLUquadric *quad, GLdouble base, GLdouble top,
         glBegin(GL_LINE_STRIP);
 
         for (j = 0; j <= stacks; j++) {
-          zLow = j * height / stacks;
+          zLow = float(j)*float(height)/float(stacks);
 
-          radiusLow = base - delta * ((float) j / stacks);
+          radiusLow = GLfloat(base - delta*(float(j)/float(stacks)));
 
           if (quad->getTexture())
-            glTexCoord2f(1 - (float) i / slices, (float) j / stacks);
+            glTexCoord2f(1 - float(i)/float(slices), float(j)/float(stacks));
 
           glVertex3f(radiusLow * sintemp, radiusLow * costemp, zLow);
         }
@@ -393,8 +387,7 @@ gluDeleteTess(GLUtesselator *tess)
 }
 
 void
-gluDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
-        GLint slices, GLint loops)
+gluDisk(GLUquadric *quad, GLdouble inner, GLdouble outer, GLint slices, GLint loops)
 {
   gluPartialDisk(quad, inner, outer, slices, loops, 0.0, 360.0);
 }
@@ -416,15 +409,15 @@ gluErrorString(GLenum error)
 {
   switch (error) {
     case GLU_INVALID_ENUM:
-      return (const GLubyte *) "Invalid Enum";
+      return reinterpret_cast<const GLubyte *>("Invalid Enum");
     case GLU_INVALID_VALUE:
-      return (const GLubyte *) "Invalid Value";
+      return reinterpret_cast<const GLubyte *>("Invalid Value");
     case GLU_OUT_OF_MEMORY:
-      return (const GLubyte *) "Out of Memory";
+      return reinterpret_cast<const GLubyte *>("Out of Memory");
     case GL_STACK_UNDERFLOW:
-      return (const GLubyte *) "Stack Underflow";
+      return reinterpret_cast<const GLubyte *>("Stack Underflow");
     default:
-      return (const GLubyte *) "Unknown Error";
+      return reinterpret_cast<const GLubyte *>("Unknown Error");
   }
 }
 
@@ -433,7 +426,7 @@ gluGetString(GLenum /*name*/)
 {
   CGLMgrInst->unimplemented("gluGetString");
 
-  return (const GLubyte *) "";
+  return reinterpret_cast<const GLubyte *>("");
 }
 
 void
@@ -568,17 +561,17 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
     slices2 = slices + 1;
 
   /* Compute length (needed for normal calculations) */
-  delta = outer - inner;
+  delta = GLfloat(outer - inner);
 
   /* Cache is the vertex locations cache */
 
-  angleOffset = start / 180.0 * M_PI;
+  angleOffset = GLfloat(start / 180.0*M_PI);
 
   for (i = 0; i <= slices; i++) {
-    angle = angleOffset + ((M_PI * sweep) / 180.0) * i / slices;
+    angle = GLfloat(angleOffset + ((M_PI*sweep) / 180.0)*i / slices);
 
-    sinCache[i] = ::sin(angle);
-    cosCache[i] = ::cos(angle);
+    sinCache[i] = std::sin(angle);
+    cosCache[i] = std::cos(angle);
   }
 
   if (sweep == 360.0) {
@@ -613,31 +606,27 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
 
         glVertex3f(0.0, 0.0, 0.0);
 
-        radiusLow = outer - delta * ((float) (loops-1) / loops);
+        radiusLow = GLfloat(outer - delta*(float(loops - 1)/float(loops)));
 
         if (quad->getTexture())
-          texLow = radiusLow / outer / 2;
+          texLow = GLfloat(radiusLow / outer / 2);
 
         if (quad->getOrientation() == GLU_OUTSIDE) {
           for (i = slices; i >= 0; i--) {
             if (quad->getTexture()) {
-              glTexCoord2f(texLow * sinCache[i] + 0.5,
-
-              texLow * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
             }
 
-            glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], 0.0);
+            glVertex3f(GLfloat(radiusLow*sinCache[i]), GLfloat(radiusLow*cosCache[i]), 0.0);
           }
         }
         else {
           for (i = 0; i <= slices; i++) {
             if (quad->getTexture()) {
-              glTexCoord2f(texLow * sinCache[i] + 0.5,
-
-              texLow * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
             }
 
-            glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], 0.0);
+            glVertex3f(GLfloat(radiusLow*sinCache[i]), GLfloat(radiusLow*cosCache[i]), 0.0);
           }
         }
 
@@ -647,12 +636,12 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
         finish = loops;
 
       for (j = 0; j < finish; j++) {
-        radiusLow  = outer - delta * ((float)  j      / loops);
-        radiusHigh = outer - delta * ((float) (j + 1) / loops);
+        radiusLow  = GLfloat(outer - delta*(float(j    )/float(loops)));
+        radiusHigh = GLfloat(outer - delta*(float(j + 1)/float(loops)));
 
         if (quad->getTexture()) {
-          texLow  = radiusLow  / outer / 2;
-          texHigh = radiusHigh / outer / 2;
+          texLow  = GLfloat(radiusLow  / outer / 2);
+          texHigh = GLfloat(radiusHigh / outer / 2);
         }
 
         glBegin(GL_QUAD_STRIP);
@@ -660,34 +649,26 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
         for (i = 0; i <= slices; i++) {
           if (quad->getOrientation() == GLU_OUTSIDE) {
             if (quad->getTexture()) {
-              glTexCoord2f(texLow * sinCache[i] + 0.5,
-
-              texLow * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
             }
 
-            glVertex3f(radiusLow * sinCache[i], radiusLow * cosCache[i], 0.0);
+            glVertex3f(GLfloat(radiusLow*sinCache[i]), GLfloat(radiusLow*cosCache[i]), 0.0);
 
             if (quad->getTexture())
-              glTexCoord2f(texHigh * sinCache[i] + 0.5,
-                           texHigh * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texHigh*sinCache[i] + 0.5), GLfloat(texHigh*cosCache[i] + 0.5));
 
-            glVertex3f(radiusHigh * sinCache[i],
-                       radiusHigh * cosCache[i], 0.0);
+            glVertex3f(GLfloat(radiusHigh*sinCache[i]), GLfloat(radiusHigh*cosCache[i]), 0.0);
           }
           else {
             if (quad->getTexture())
-              glTexCoord2f(texHigh * sinCache[i] + 0.5,
-                           texHigh * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texHigh*sinCache[i] + 0.5), GLfloat(texHigh*cosCache[i] + 0.5));
 
-            glVertex3f(radiusHigh * sinCache[i],
-                       radiusHigh * cosCache[i], 0.0);
+            glVertex3f(GLfloat(radiusHigh*sinCache[i]), GLfloat(radiusHigh*cosCache[i]), 0.0);
 
             if (quad->getTexture())
-              glTexCoord2f(texLow * sinCache[i] + 0.5,
-                           texLow * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
 
-            glVertex3f(radiusLow * sinCache[i],
-                       radiusLow * cosCache[i], 0.0);
+            glVertex3f(GLfloat(radiusLow*sinCache[i]), GLfloat(radiusLow*cosCache[i]), 0.0);
           }
         }
 
@@ -703,16 +684,15 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
         costemp = cosCache[i];
 
         for (j = 0; j <= loops; j++) {
-          radiusLow = outer - delta * ((float) j / loops);
+          radiusLow = GLfloat(outer - delta*(float(j)/float(loops)));
 
           if (quad->getTexture()) {
-            texLow = radiusLow / outer / 2;
+            texLow = GLfloat(radiusLow/outer/2);
 
-            glTexCoord2f(texLow * sinCache[i] + 0.5,
-                         texLow * cosCache[i] + 0.5);
+            glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
           }
 
-          glVertex3f(radiusLow * sintemp, radiusLow * costemp, 0.0);
+          glVertex3f(GLfloat(radiusLow*sintemp), GLfloat(radiusLow*costemp), 0.0);
         }
       }
 
@@ -725,9 +705,9 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
 
         for (i = 0; i <= slices; i++) {
           if (quad->getTexture())
-            glTexCoord2f(sinCache[i] / 2 + 0.5, cosCache[i] / 2 + 0.5);
+            glTexCoord2f(GLfloat(sinCache[i]/2 + 0.5), GLfloat(cosCache[i]/2 + 0.5));
 
-          glVertex3f(inner * sinCache[i], inner * cosCache[i], 0.0);
+          glVertex3f(GLfloat(inner*sinCache[i]), GLfloat(inner*cosCache[i]), 0.0);
         }
 
         glEnd();
@@ -736,20 +716,18 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
       }
 
       for (j = 0; j <= loops; j++) {
-        radiusLow = outer - delta * ((float) j / loops);
+        radiusLow = GLfloat(outer - delta*(float(j)/float(loops)));
 
         if (quad->getTexture())
-          texLow = radiusLow / outer / 2;
+          texLow = GLfloat(radiusLow / outer / 2);
 
         glBegin(GL_LINE_STRIP);
 
         for (i = 0; i <= slices; i++) {
           if (quad->getTexture())
-            glTexCoord2f(texLow * sinCache[i] + 0.5,
-                         texLow * cosCache[i] + 0.5);
+            glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
 
-          glVertex3f(radiusLow * sinCache[i],
-                     radiusLow * cosCache[i], 0.0);
+          glVertex3f(GLfloat(radiusLow*sinCache[i]), GLfloat(radiusLow*cosCache[i]), 0.0);
         }
 
         glEnd();
@@ -762,16 +740,15 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
         glBegin(GL_LINE_STRIP);
 
         for (j = 0; j <= loops; j++) {
-          radiusLow = outer - delta * ((float) j / loops);
+          radiusLow = GLfloat(outer - delta*(float(j)/float(loops)));
 
           if (quad->getTexture())
-            texLow = radiusLow / outer / 2;
+            texLow = GLfloat(radiusLow / outer / 2);
 
           if (quad->getTexture())
-            glTexCoord2f(texLow * sinCache[i] + 0.5,
-                         texLow * cosCache[i] + 0.5);
+            glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
 
-          glVertex3f(radiusLow * sintemp, radiusLow * costemp, 0.0);
+          glVertex3f(GLfloat(radiusLow*sintemp), GLfloat(radiusLow*costemp), 0.0);
         }
 
         glEnd();
@@ -787,16 +764,15 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
           glBegin(GL_LINE_STRIP);
 
           for (j = 0; j <= loops; j++) {
-            radiusLow = outer - delta * ((float) j / loops);
+            radiusLow = GLfloat(outer - delta*(float(j)/float(loops)));
 
             if (quad->getTexture()) {
-              texLow = radiusLow / outer / 2;
+              texLow = GLfloat(radiusLow / outer / 2);
 
-              glTexCoord2f(texLow * sinCache[i] + 0.5,
-                           texLow * cosCache[i] + 0.5);
+              glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
             }
 
-            glVertex3f(radiusLow * sintemp, radiusLow * costemp, 0.0);
+            glVertex3f(GLfloat(radiusLow*sintemp), GLfloat(radiusLow*costemp), 0.0);
           }
 
           glEnd();
@@ -804,20 +780,18 @@ gluPartialDisk(GLUquadric *quad, GLdouble inner, GLdouble outer,
       }
 
       for (j = 0; j <= loops; j += loops) {
-        radiusLow = outer - delta * ((float) j / loops);
+        radiusLow = GLfloat(outer - delta*(float(j)/float(loops)));
 
         if (quad->getTexture())
-          texLow = radiusLow / outer / 2;
+          texLow = GLfloat(radiusLow / outer / 2);
 
         glBegin(GL_LINE_STRIP);
 
         for (i = 0; i <= slices; i++) {
           if (quad->getTexture())
-            glTexCoord2f(texLow * sinCache[i] + 0.5,
-                         texLow * cosCache[i] + 0.5);
+            glTexCoord2f(GLfloat(texLow*sinCache[i] + 0.5), GLfloat(texLow*cosCache[i] + 0.5));
 
-          glVertex3f(radiusLow * sinCache[i],
-                     radiusLow * cosCache[i], 0.0);
+          glVertex3f(GLfloat(radiusLow*sinCache[i]), GLfloat(radiusLow*cosCache[i]), 0.0);
         }
 
         glEnd();
@@ -845,17 +819,16 @@ gluPerspective(GLdouble fov, GLdouble aspect, GLdouble near, GLdouble far)
 }
 
 void
-gluPickMatrix(GLdouble x, GLdouble y, GLdouble delX, GLdouble delY,
-              GLint *viewport)
+gluPickMatrix(GLdouble x, GLdouble y, GLdouble delX, GLdouble delY, GLint *viewport)
 {
   if (delX <= 0 || delY <= 0)
     return;
 
   /* Translate and scale the picked region to the entire window */
-  glTranslatef((viewport[2] - 2*(x - viewport[0]))/delX,
-               (viewport[3] - 2*(y - viewport[1]))/delY, 0);
+  glTranslatef(GLfloat((viewport[2] - 2*(x - viewport[0]))/delX),
+               GLfloat((viewport[3] - 2*(y - viewport[1]))/delY), 0);
 
-  glScalef(viewport[2] / delX, viewport[3] / delY, 1.0);
+  glScalef(GLfloat(viewport[2]/delX), GLfloat(viewport[3]/delY), 1.0);
 }
 
 void
@@ -931,7 +904,6 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
   GLfloatArray sinCache3b; sinCache3b.resize(CACHE_SIZE);
   GLfloatArray cosCache3b; cosCache3b.resize(CACHE_SIZE);
 
-  GLint     i, j;
   GLfloat   angle;
   GLfloat   zLow, zHigh;
   GLfloat   sintemp1, sintemp2, sintemp3 = 0.0, sintemp4 = 0.0;
@@ -963,73 +935,73 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
       needCache2 = GL_TRUE;
   }
 
-  for (i = 0; i < slices; i++) {
-    angle = 2 * M_PI * i / slices;
+  for (uint i = 0; i < uint(slices); i++) {
+    angle = GLfloat(2*M_PI*float(i)/float(slices));
 
-    sinCache1a[i] = ::sin(angle);
-    cosCache1a[i] = ::cos(angle);
+    sinCache1a[i] = GLfloat(std::sin(angle));
+    cosCache1a[i] = GLfloat(std::cos(angle));
 
     if (needCache2) {
-      sinCache2a[i] = sinCache1a[i];
-      cosCache2a[i] = cosCache1a[i];
+      sinCache2a[i] = GLfloat(sinCache1a[i]);
+      cosCache2a[i] = GLfloat(cosCache1a[i]);
     }
   }
 
-  for (j = 0; j <= stacks; j++) {
-    angle = M_PI * j / stacks;
+  for (uint j = 0; j <= uint(stacks); j++) {
+    angle = GLfloat(M_PI*float(j)/float(stacks));
 
     if (needCache2) {
       if (quad->getOrientation() == GLU_OUTSIDE) {
-        sinCache2b[j] = ::sin(angle);
-        cosCache2b[j] = ::cos(angle);
+        sinCache2b[j] = GLfloat(std::sin(angle));
+        cosCache2b[j] = GLfloat(std::cos(angle));
       }
       else {
-        sinCache2b[j] = -::sin(angle);
-        cosCache2b[j] = -::cos(angle);
+        sinCache2b[j] = GLfloat(-std::sin(angle));
+        cosCache2b[j] = GLfloat(-std::cos(angle));
       }
     }
 
-    sinCache1b[j] = radius * ::sin(angle);
-    cosCache1b[j] = radius * ::cos(angle);
+    sinCache1b[j] = GLfloat(radius*std::sin(angle));
+    cosCache1b[j] = GLfloat(radius*std::cos(angle));
   }
 
   /* Make sure it comes to a point */
-  sinCache1b[0     ] = 0;
-  sinCache1b[stacks] = 0;
+  sinCache1b[0           ] = 0;
+  sinCache1b[uint(stacks)] = 0;
 
   if (needCache3) {
-    for (i = 0; i < slices; i++) {
-      angle = 2 * M_PI * (i-0.5) / slices;
+    for (uint i = 0; i < uint(slices); i++) {
+      angle = GLfloat(2*M_PI*(i - 0.5)/float(slices));
 
-      sinCache3a[i] = ::sin(angle);
-      cosCache3a[i] = ::cos(angle);
+      sinCache3a[i] = std::sin(angle);
+      cosCache3a[i] = std::cos(angle);
     }
 
-    for (j = 0; j <= stacks; j++) {
-      angle = M_PI * (j - 0.5) / stacks;
+    for (uint j = 0; j <= uint(stacks); j++) {
+      angle = GLfloat(M_PI*(j - 0.5)/float(stacks));
 
       if (quad->getOrientation() == GLU_OUTSIDE) {
-        sinCache3b[j] = ::sin(angle);
-        cosCache3b[j] = ::cos(angle);
+        sinCache3b[j] = std::sin(angle);
+        cosCache3b[j] = std::cos(angle);
       }
       else {
-        sinCache3b[j] = -::sin(angle);
-        cosCache3b[j] = -::cos(angle);
+        sinCache3b[j] = -std::sin(angle);
+        cosCache3b[j] = -std::cos(angle);
       }
     }
   }
 
-  sinCache1a[slices] = sinCache1a[0];
-  cosCache1a[slices] = cosCache1a[0];
+  sinCache1a[uint(slices)] = sinCache1a[0];
+  cosCache1a[uint(slices)] = cosCache1a[0];
 
   if (needCache2) {
-    sinCache2a[slices] = sinCache2a[0];
-    cosCache2a[slices] = cosCache2a[0];
+    sinCache2a[uint(slices)] = sinCache2a[0];
+    cosCache2a[uint(slices)] = cosCache2a[0];
   }
 
   if (needCache3) {
-    sinCache3a[slices] = sinCache3a[0];
-    cosCache3a[slices] = cosCache3a[0];
+    sinCache3a[uint(slices)] = sinCache3a[0];
+    cosCache3a[uint(slices)] = cosCache3a[0];
   }
 
   switch (quad->getDrawStyle()) {
@@ -1056,9 +1028,7 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
             sintemp3 = sinCache2b[1];
             costemp3 = cosCache2b[1];
 
-            glNormal3f(sinCache2a[0] * sinCache2b[0],
-                       cosCache2a[0] * sinCache2b[0],
-                       cosCache2b[0]);
+            glNormal3f(sinCache2a[0]*sinCache2b[0], cosCache2a[0]*sinCache2b[0], cosCache2b[0]);
             break;
           default:
             break;
@@ -1066,21 +1036,18 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
         glBegin(GL_TRIANGLE_FAN);
 
-        glVertex3f(0.0, 0.0, radius);
+        glVertex3f(0.0, 0.0, float(radius));
 
         if (quad->getOrientation() == GLU_OUTSIDE) {
-          for (i = slices; i >= 0; i--) {
+          for (int i = slices; i >= 0; i--) {
             switch (quad->getNormals()) {
               case GLU_SMOOTH:
-                glNormal3f(sinCache2a[i] * sintemp3,
-                           cosCache2a[i] * sintemp3,
-                           costemp3);
+                glNormal3f(sinCache2a[uint(i)]*sintemp3, cosCache2a[uint(i)]*sintemp3, costemp3);
                 break;
               case GLU_FLAT:
                 if (i != slices)
-                  glNormal3f(sinCache3a[i+1] * sintemp3,
-                             cosCache3a[i+1] * sintemp3,
-                             costemp3);
+                  glNormal3f(sinCache3a[uint(i + 1)]*sintemp3,
+                             cosCache3a[uint(i + 1)]*sintemp3, costemp3);
 
                 break;
               case GLU_NONE:
@@ -1088,51 +1055,45 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
                 break;
             }
 
-            glVertex3f(sintemp2 * sinCache1a[i],
-                       sintemp2 * cosCache1a[i], zHigh);
+            glVertex3f(sintemp2*sinCache1a[uint(i)], sintemp2*cosCache1a[uint(i)], zHigh);
           }
         }
         else {
-          for (i = 0; i <= slices; i++) {
+          for (int i = 0; i <= slices; i++) {
             switch (quad->getNormals()) {
               case GLU_SMOOTH:
-                glNormal3f(sinCache2a[i] * sintemp3,
-                           cosCache2a[i] * sintemp3,
-                           costemp3);
+                glNormal3f(sinCache2a[uint(i)]*sintemp3, cosCache2a[uint(i)]*sintemp3, costemp3);
                 break;
               case GLU_FLAT:
-                glNormal3f(sinCache3a[i] * sintemp3,
-                           cosCache3a[i] * sintemp3,
-                           costemp3);
+                glNormal3f(sinCache3a[uint(i)]*sintemp3, cosCache3a[uint(i)]*sintemp3, costemp3);
                 break;
               case GLU_NONE:
               default:
                 break;
             }
 
-            glVertex3f(sintemp2 * sinCache1a[i],
-                       sintemp2 * cosCache1a[i], zHigh);
+            glVertex3f(sintemp2*sinCache1a[uint(i)], sintemp2*cosCache1a[uint(i)], zHigh);
           }
         }
 
         glEnd();
 
         /* High end next (j == stacks-1 iteration) */
-        sintemp2 = sinCache1b[stacks-1];
-        zHigh    = cosCache1b[stacks-1];
+        sintemp2 = sinCache1b[uint(stacks - 1)];
+        zHigh    = cosCache1b[uint(stacks - 1)];
 
         switch (quad->getNormals()) {
           case GLU_FLAT:
-            sintemp3 = sinCache3b[stacks];
-            costemp3 = cosCache3b[stacks];
+            sintemp3 = sinCache3b[uint(stacks)];
+            costemp3 = cosCache3b[uint(stacks)];
             break;
           case GLU_SMOOTH:
-            sintemp3 = sinCache2b[stacks-1];
-            costemp3 = cosCache2b[stacks-1];
+            sintemp3 = sinCache2b[uint(stacks - 1)];
+            costemp3 = cosCache2b[uint(stacks - 1)];
 
-            glNormal3f(sinCache2a[stacks] * sinCache2b[stacks],
-                       cosCache2a[stacks] * sinCache2b[stacks],
-                       cosCache2b[stacks]);
+            glNormal3f(sinCache2a[uint(stacks)]*sinCache2b[uint(stacks)],
+                       cosCache2a[uint(stacks)]*sinCache2b[uint(stacks)],
+                       cosCache2b[uint(stacks)]);
             break;
           default:
             break;
@@ -1140,43 +1101,35 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
         glBegin(GL_TRIANGLE_FAN);
 
-        glVertex3f(0.0, 0.0, -radius);
+        glVertex3f(0.0, 0.0, float(-radius));
 
         if (quad->getOrientation() == GLU_OUTSIDE) {
-          for (i = 0; i <= slices; i++) {
+          for (uint i = 0; i <= uint(slices); i++) {
             switch (quad->getNormals()) {
               case GLU_SMOOTH:
-                glNormal3f(sinCache2a[i] * sintemp3,
-                           cosCache2a[i] * sintemp3,
-                           costemp3);
+                glNormal3f(sinCache2a[i]*sintemp3, cosCache2a[i]*sintemp3, costemp3);
                 break;
               case GLU_FLAT:
-                glNormal3f(sinCache3a[i] * sintemp3,
-                           cosCache3a[i] * sintemp3,
-                           costemp3);
+                glNormal3f(sinCache3a[i]*sintemp3, cosCache3a[i]*sintemp3, costemp3);
                 break;
               case GLU_NONE:
               default:
                 break;
             }
 
-            glVertex3f(sintemp2 * sinCache1a[i],
-                       sintemp2 * cosCache1a[i], zHigh);
+            glVertex3f(sintemp2*sinCache1a[uint(i)], sintemp2*cosCache1a[uint(i)], zHigh);
           }
         }
         else {
-          for (i = slices; i >= 0; i--) {
+          for (int i = slices; i >= 0; i--) {
             switch (quad->getNormals()) {
               case GLU_SMOOTH:
-                glNormal3f(sinCache2a[i] * sintemp3,
-                           cosCache2a[i] * sintemp3,
-                           costemp3);
+                glNormal3f(sinCache2a[uint(i)]*sintemp3, cosCache2a[uint(i)]*sintemp3, costemp3);
                 break;
               case GLU_FLAT:
                 if (i != slices)
-                  glNormal3f(sinCache3a[i+1] * sintemp3,
-                             cosCache3a[i+1] * sintemp3,
-                             costemp3);
+                  glNormal3f(sinCache3a[uint(i + 1)]*sintemp3,
+                             cosCache3a[uint(i + 1)]*sintemp3, costemp3);
 
                 break;
               case GLU_NONE:
@@ -1184,8 +1137,7 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
                 break;
             }
 
-            glVertex3f(sintemp2 * sinCache1a[i],
-                       sintemp2 * cosCache1a[i], zHigh);
+            glVertex3f(sintemp2*sinCache1a[uint(i)], sintemp2*cosCache1a[uint(i)], zHigh);
           }
         }
 
@@ -1196,30 +1148,30 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
         finish = stacks;
       }
 
-      for (j = start; j < finish; j++) {
-        zLow  = cosCache1b[j];
-        zHigh = cosCache1b[j+1];
+      for (int j = start; j < finish; j++) {
+        zLow  = cosCache1b[uint(j    )];
+        zHigh = cosCache1b[uint(j + 1)];
 
-        sintemp1 = sinCache1b[j];
-        sintemp2 = sinCache1b[j+1];
+        sintemp1 = sinCache1b[uint(j    )];
+        sintemp2 = sinCache1b[uint(j + 1)];
 
         switch (quad->getNormals()) {
           case GLU_FLAT:
-            sintemp4 = sinCache3b[j+1];
-            costemp4 = cosCache3b[j+1];
+            sintemp4 = sinCache3b[uint(j + 1)];
+            costemp4 = cosCache3b[uint(j + 1)];
             break;
           case GLU_SMOOTH:
             if (quad->getOrientation() == GLU_OUTSIDE) {
-              sintemp3 = sinCache2b[j+1];
-              costemp3 = cosCache2b[j+1];
-              sintemp4 = sinCache2b[j];
-              costemp4 = cosCache2b[j];
+              sintemp3 = sinCache2b[uint(j + 1)];
+              costemp3 = cosCache2b[uint(j + 1)];
+              sintemp4 = sinCache2b[uint(j    )];
+              costemp4 = cosCache2b[uint(j    )];
             }
             else {
-              sintemp3 = sinCache2b[j];
-              costemp3 = cosCache2b[j];
-              sintemp4 = sinCache2b[j+1];
-              costemp4 = cosCache2b[j+1];
+              sintemp3 = sinCache2b[uint(j    )];
+              costemp3 = cosCache2b[uint(j    )];
+              sintemp4 = sinCache2b[uint(j + 1)];
+              costemp4 = cosCache2b[uint(j + 1)];
             }
             break;
           default:
@@ -1228,12 +1180,10 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
         glBegin(GL_QUAD_STRIP);
 
-        for (i = 0; i <= slices; i++) {
+        for (uint i = 0; i <= uint(slices); i++) {
           switch (quad->getNormals()) {
             case GLU_SMOOTH:
-              glNormal3f(sinCache2a[i] * sintemp3,
-                         cosCache2a[i] * sintemp3,
-                         costemp3);
+              glNormal3f(sinCache2a[i]*sintemp3, cosCache2a[i]*sintemp3, costemp3);
               break;
             case GLU_FLAT:
             case GLU_NONE:
@@ -1243,31 +1193,25 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
           if (quad->getOrientation() == GLU_OUTSIDE) {
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices,
-                           1 - (float) (j+1) / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), 1 - float(j + 1)/float(stacks));
 
-            glVertex3f(sintemp2 * sinCache1a[i],
-                       sintemp2 * cosCache1a[i], zHigh);
+            glVertex3f(GLfloat(sintemp2*sinCache1a[i]), GLfloat(sintemp2*cosCache1a[i]), zHigh);
           }
           else {
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices,
-                           1 - (float) j / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), 1 - float(j)/float(stacks));
 
-            glVertex3f(sintemp1 * sinCache1a[i],
-                       sintemp1 * cosCache1a[i], zLow);
+            glVertex3f(GLfloat(sintemp1*sinCache1a[i]), GLfloat(sintemp1*cosCache1a[i]), zLow);
           }
 
           switch (quad->getNormals()) {
             case GLU_SMOOTH:
-              glNormal3f(sinCache2a[i] * sintemp4,
-                         cosCache2a[i] * sintemp4,
-                         costemp4);
+              glNormal3f(GLfloat(sinCache2a[i]*sintemp4),
+                         GLfloat(cosCache2a[i]*sintemp4), costemp4);
               break;
             case GLU_FLAT:
-              glNormal3f(sinCache3a[i] * sintemp4,
-                         cosCache3a[i] * sintemp4,
-                         costemp4);
+              glNormal3f(GLfloat(sinCache3a[i]*sintemp4),
+                         GLfloat(cosCache3a[i]*sintemp4), costemp4);
               break;
             case GLU_NONE:
             default:
@@ -1276,19 +1220,15 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
           if (quad->getOrientation() == GLU_OUTSIDE) {
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices,
-                           1 - (float) j / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), 1 - float(j)/float(stacks));
 
-            glVertex3f(sintemp1 * sinCache1a[i],
-                       sintemp1 * cosCache1a[i], zLow);
+            glVertex3f(GLfloat(sintemp1*sinCache1a[i]), GLfloat(sintemp1*cosCache1a[i]), zLow);
           }
           else {
             if (quad->getTexture())
-              glTexCoord2f(1 - (float) i / slices,
-                           1 - (float) (j+1) / stacks);
+              glTexCoord2f(1 - float(i)/float(slices), 1 - float(j + 1)/float(stacks));
 
-            glVertex3f(sintemp2 * sinCache1a[i],
-                       sintemp2 * cosCache1a[i], zHigh);
+            glVertex3f(GLfloat(sintemp2*sinCache1a[i]), GLfloat(sintemp2*cosCache1a[i]), zHigh);
           }
         }
 
@@ -1299,7 +1239,7 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
     case GLU_POINT:
       glBegin(GL_POINTS);
 
-      for (j = 0; j <= stacks; j++) {
+      for (uint j = 0; j <= uint(stacks); j++) {
         sintemp1 = sinCache1b[j];
         costemp1 = cosCache1b[j];
 
@@ -1313,27 +1253,24 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
             break;
         }
 
-        for (i = 0; i < slices; i++) {
+        for (uint i = 0; i < uint(slices); i++) {
           switch (quad->getNormals()) {
             case GLU_FLAT:
             case GLU_SMOOTH:
-              glNormal3f(sinCache2a[i] * sintemp2,
-                         cosCache2a[i] * sintemp2,
-                         costemp2);
+              glNormal3f(GLfloat(sinCache2a[i]*sintemp2),
+                         GLfloat(cosCache2a[i]*sintemp2), costemp2);
               break;
             case GLU_NONE:
             default:
               break;
           }
 
-          zLow = j * radius / stacks;
+          zLow = float(j)*float(radius)/float(stacks);
 
           if (quad->getTexture())
-            glTexCoord2f(1 - (float) i / slices,
-                         1 - (float) j / stacks);
+            glTexCoord2f(1 - float(i)/float(slices), 1 - float(j)/float(stacks));
 
-          glVertex3f(sintemp1 * sinCache1a[i],
-                     sintemp1 * cosCache1a[i], costemp1);
+          glVertex3f(GLfloat(sintemp1*sinCache1a[i]), GLfloat(sintemp1*cosCache1a[i]), costemp1);
         }
       }
 
@@ -1342,7 +1279,7 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
       break;
     case GLU_LINE:
     case GLU_SILHOUETTE:
-      for (j = 1; j < stacks; j++) {
+      for (uint j = 1; j < uint(stacks); j++) {
         sintemp1 = sinCache1b[j];
         costemp1 = cosCache1b[j];
 
@@ -1358,17 +1295,13 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
         glBegin(GL_LINE_STRIP);
 
-        for (i = 0; i <= slices; i++) {
+        for (uint i = 0; i <= uint(slices); i++) {
           switch (quad->getNormals()) {
             case GLU_FLAT:
-              glNormal3f(sinCache3a[i] * sintemp2,
-                         cosCache3a[i] * sintemp2,
-                         costemp2);
+              glNormal3f(sinCache3a[i]*sintemp2, cosCache3a[i]*sintemp2, costemp2);
               break;
             case GLU_SMOOTH:
-              glNormal3f(sinCache2a[i] * sintemp2,
-                         cosCache2a[i] * sintemp2,
-                         costemp2);
+              glNormal3f(sinCache2a[i]*sintemp2, cosCache2a[i]*sintemp2, costemp2);
               break;
             case GLU_NONE:
             default:
@@ -1376,17 +1309,15 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
           }
 
           if (quad->getTexture())
-            glTexCoord2f(1 - (float) i / slices,
-                         1 - (float) j / stacks);
+            glTexCoord2f(1 - float(i)/float(slices), 1 - float(j)/float(stacks));
 
-          glVertex3f(sintemp1 * sinCache1a[i],
-                     sintemp1 * cosCache1a[i], costemp1);
+          glVertex3f(GLfloat(sintemp1*sinCache1a[i]), GLfloat(sintemp1*cosCache1a[i]), costemp1);
         }
 
         glEnd();
       }
 
-      for (i = 0; i < slices; i++) {
+      for (uint i = 0; i < uint(slices); i++) {
         sintemp1 = sinCache1a[i];
         costemp1 = cosCache1a[i];
 
@@ -1402,17 +1333,15 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
 
         glBegin(GL_LINE_STRIP);
 
-        for (j = 0; j <= stacks; j++) {
+        for (uint j = 0; j <= uint(stacks); j++) {
           switch (quad->getNormals()) {
             case GLU_FLAT:
-              glNormal3f(sintemp2 * sinCache3b[j],
-                         costemp2 * sinCache3b[j],
-                         cosCache3b[j]);
+              glNormal3f(GLfloat(sintemp2*sinCache3b[j]),
+                         GLfloat(costemp2*sinCache3b[j]), cosCache3b[j]);
               break;
             case GLU_SMOOTH:
-              glNormal3f(sintemp2 * sinCache2b[j],
-                         costemp2 * sinCache2b[j],
-                         cosCache2b[j]);
+              glNormal3f(GLfloat(sintemp2*sinCache2b[j]),
+                         GLfloat(costemp2*sinCache2b[j]), cosCache2b[j]);
               break;
             case GLU_NONE:
             default:
@@ -1420,11 +1349,10 @@ gluSphere(GLUquadric *quad, GLdouble radius, GLint slices, GLint stacks)
           }
 
           if (quad->getTexture())
-            glTexCoord2f(1 - (float) i / slices,
-                         1 - (float) j / stacks);
+            glTexCoord2f(1 - float(i)/float(slices), 1 - float(j)/float(stacks));
 
-          glVertex3f(sintemp1 * sinCache1b[j],
-                     costemp1 * sinCache1b[j], cosCache1b[j]);
+          glVertex3f(GLfloat(sintemp1*sinCache1b[j]),
+                     GLfloat(costemp1*sinCache1b[j]), cosCache1b[j]);
         }
 
         glEnd();

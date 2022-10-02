@@ -99,10 +99,10 @@ void
 CGLColorBuffer::
 fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
 {
-  int w = getWidth ();
-  int h = getHeight();
+  int w = int(getWidth ());
+  int h = int(getHeight());
 
-  uint num_vertices = vertices.size();
+  auto num_vertices = vertices.size();
 
   // get y limits
   const CPoint3D &pixel = vertices[0]->getPixel();
@@ -145,7 +145,7 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
     double xp;
 
     // for each polygon line find x range for this y
-    for (uint i1 = num_vertices - 1, i2 = 0; i2 < num_vertices; i1 = i2, ++i2) {
+    for (uint i1 = uint(num_vertices - 1), i2 = 0; i2 < num_vertices; i1 = i2, ++i2) {
       const CPoint3D &pixel1 = vertices[i1]->getPixel();
       const CPoint3D &pixel2 = vertices[i2]->getPixel();
 
@@ -162,8 +162,8 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
 
       // update min and/or max
       if (! set) {
-        xpmin = CMathRound::RoundUp  (xp); i1min = i1; i2min = i2;
-        xpmax = CMathRound::RoundDown(xp); i1max = i1; i2max = i2;
+        xpmin = CMathRound::RoundUp  (xp); i1min = int(i1); i2min = int(i2);
+        xpmax = CMathRound::RoundDown(xp); i1max = int(i1); i2max = int(i2);
 
         set = true;
       }
@@ -172,11 +172,11 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
         int ixp2 = CMathRound::RoundDown(xp);
 
         if (ixp1 < xpmin) {
-          xpmin = ixp1; i1min = i1; i2min = i2;
+          xpmin = ixp1; i1min = int(i1); i2min = int(i2);
         }
 
         if (ixp2 > xpmax) {
-          xpmax = ixp2; i1max = i1; i2max = i2;
+          xpmax = ixp2; i1max = int(i1); i2max = int(i2);
         }
       }
     }
@@ -191,8 +191,8 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
     double d, i, id;
 
     // get relative intersect of y value on min line
-    const CPoint3D &pixel1 = vertices[i1min]->getPixel();
-    const CPoint3D &pixel2 = vertices[i2min]->getPixel();
+    const CPoint3D &pixel1 = vertices[uint(i1min)]->getPixel();
+    const CPoint3D &pixel2 = vertices[uint(i2min)]->getPixel();
 
     if (fabs(pixel2.x - pixel1.x) > fabs(pixel2.y - pixel1.y)) {
       d = xpmin - pixel1.x;
@@ -205,25 +205,25 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
 
     id = i*d;
 
-    // interp z at minimim
-    const CPoint3D &viewed1 = vertices[i1min]->getViewed();
-    const CPoint3D &viewed2 = vertices[i2min]->getViewed();
+    // interp z at minimum
+    const CPoint3D &viewed1 = vertices[uint(i1min)]->getViewed();
+    const CPoint3D &viewed2 = vertices[uint(i2min)]->getViewed();
 
     zpmin = (pixel2 .z - pixel1 .z)*id + pixel1 .z;
     zvmin = (viewed2.z - viewed1.z)*id + viewed1.z;
 
     // interp color at minimum (if required)
     if (! gl_->getFlatShading()) {
-      const CRGBA &rgba1 = vertices[i1min]->getColor();
-      const CRGBA &rgba2 = vertices[i2min]->getColor();
+      const CRGBA &rgba1 = vertices[uint(i1min)]->getColor();
+      const CRGBA &rgba2 = vertices[uint(i2min)]->getColor();
 
       rgba_min = (rgba2 - rgba1)*id + rgba1;
     }
 
     // interp normal at maximum (if required)
     if (getSmooth()) {
-      const CVector3D &normal1 = vertices[i1min]->getNormal();
-      const CVector3D &normal2 = vertices[i2min]->getNormal();
+      const CVector3D &normal1 = vertices[uint(i1min)]->getNormal();
+      const CVector3D &normal2 = vertices[uint(i2min)]->getNormal();
 
       normal_min = (normal2 - normal1)*id + normal1;
     }
@@ -232,8 +232,8 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
     if (gl_->getTexture1Data().getEnabled() ||
         gl_->getTexture2Data().getEnabled() ||
         gl_->getTexture3Data().getEnabled()) {
-      const CPoint3D &point1 = vertices[i1min]->getTextureMap();
-      const CPoint3D &point2 = vertices[i2min]->getTextureMap();
+      const CPoint3D &point1 = vertices[uint(i1min)]->getTextureMap();
+      const CPoint3D &point2 = vertices[uint(i2min)]->getTextureMap();
 
       tmin.x = (point2.x - point1.x)*id + point1.x;
       tmin.y = (point2.y - point1.y)*id + point1.y;
@@ -243,8 +243,8 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
     //-----------------
 
     // get relative intersect of y value on max line
-    const CPoint3D &pixel3 = vertices[i1max]->getPixel();
-    const CPoint3D &pixel4 = vertices[i2max]->getPixel();
+    const CPoint3D &pixel3 = vertices[uint(i1max)]->getPixel();
+    const CPoint3D &pixel4 = vertices[uint(i2max)]->getPixel();
 
     if (fabs(pixel4.x - pixel3.x) > fabs(pixel4.y - pixel3.y)) {
       d = xpmax - pixel3.x;
@@ -258,24 +258,24 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
     id = i*d;
 
     // interp z at maximum
-    const CPoint3D &viewed3 = vertices[i1max]->getViewed();
-    const CPoint3D &viewed4 = vertices[i2max]->getViewed();
+    const CPoint3D &viewed3 = vertices[uint(i1max)]->getViewed();
+    const CPoint3D &viewed4 = vertices[uint(i2max)]->getViewed();
 
     zpmax = (pixel4 .z - pixel3 .z)*id + pixel3 .z;
     zvmax = (viewed4.z - viewed3.z)*id + viewed3.z;
 
     // interp color at maximum (if required)
     if (! gl_->getFlatShading()) {
-      const CRGBA &rgba1 = vertices[i1max]->getColor();
-      const CRGBA &rgba2 = vertices[i2max]->getColor();
+      const CRGBA &rgba1 = vertices[uint(i1max)]->getColor();
+      const CRGBA &rgba2 = vertices[uint(i2max)]->getColor();
 
       rgba_max = (rgba2 - rgba1)*id + rgba1;
     }
 
     // interp normal at maximum (if required)
     if (getSmooth()) {
-      const CVector3D &normal1 = vertices[i1max]->getNormal();
-      const CVector3D &normal2 = vertices[i2max]->getNormal();
+      const CVector3D &normal1 = vertices[uint(i1max)]->getNormal();
+      const CVector3D &normal2 = vertices[uint(i2max)]->getNormal();
 
       normal_max = (normal2 - normal1)*id + normal1;
     }
@@ -284,8 +284,8 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
     if (gl_->getTexture1Data().getEnabled() ||
         gl_->getTexture2Data().getEnabled() ||
         gl_->getTexture3Data().getEnabled()) {
-      const CPoint3D &point1 = vertices[i1max]->getTextureMap();
-      const CPoint3D &point2 = vertices[i2max]->getTextureMap();
+      const CPoint3D &point1 = vertices[uint(i1max)]->getTextureMap();
+      const CPoint3D &point2 = vertices[uint(i2max)]->getTextureMap();
 
       tmax.x = (point2.x - point1.x)*id + point1.x;
       tmax.y = (point2.y - point1.y)*id + point1.y;
@@ -347,7 +347,7 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
 
     for (int xp1 = xpmin; xp1 <= xpmax && xp1 < w; ++xp1, point.z += dzp, zv += dzv) {
       if (xp1 >= 0)
-        setPoint(xp1, yp, point, zv);
+        setPoint(uint(xp1), uint(yp), point, zv);
 
       if (! gl_->getFlatShading())
         point.rgba += drgba;
@@ -367,7 +367,7 @@ void
 CGLColorBuffer::
 drawLines(const std::vector<CGeomVertex3D *> &vertices)
 {
-  uint num_vertices = vertices.size();
+  auto num_vertices = vertices.size();
 
   CGeomVertex3D *vertex1 = vertices[num_vertices - 1];
   CGeomVertex3D *vertex2 = NULL;
@@ -431,8 +431,8 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
   if (line_width <= 0)
     line_width = 1;
 
-  int line_width1 = line_width >> 1;
-  int line_width2 = line_width - line_width1;
+  int line_width1 = int(line_width >> 1);
+  int line_width2 = int(line_width) - line_width1;
 
   int dx = x2 - x1;
 
@@ -450,7 +450,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
     if (y2 > y1) {
       for (int y = y1; y <= y2; ++y, point += dpoint, zv += dzp) {
         if (line_dash_.isDraw())
-          setPoint(x1, y, point, zv);
+          setPoint(uint(x1), uint(y), point, zv);
 
         line_dash_.step(1);
       }
@@ -458,7 +458,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
     else {
       for (int y = y1; y >= y2; --y, point += dpoint, zv += dzp) {
         if (line_dash_.isDraw())
-          setPoint(x1, y, point, zv);
+          setPoint(uint(x1), uint(y), point, zv);
 
         line_dash_.step(1);
       }
@@ -486,7 +486,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       for (int x = x1; x <= x2; ++x, point += dpoint, zv += dzp) {
         if (line_dash_.isDraw()) {
           for (int i = -line_width1; i < line_width2; ++i)
-            setPoint(x, y1 + i, point, zv);
+            setPoint(uint(x), uint(y1 + i), point, zv);
         }
 
         line_dash_.step(1);
@@ -496,7 +496,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       for (int x = x1; x >= x2; --x, point += dpoint, zv += dzp) {
         if (line_dash_.isDraw()) {
           for (int i = -line_width1; i < line_width2; ++i)
-            setPoint(x, y1 + i, point, zv);
+            setPoint(uint(x), uint(y1 + i), point, zv);
         }
 
         line_dash_.step(1);
@@ -531,13 +531,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       if (dy > 0) {
         for (int x = x1; x <= x2; ++x, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += ady;
 
-          if ((eps << 1) >= (int) adx) {
+          if ((eps << 1) >= int(adx)) {
             ++y;
 
             eps -= adx;
@@ -547,13 +547,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       else {
         for (int x = x1; x <= x2; ++x, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += ady;
 
-          if ((eps << 1) >= (int) adx) {
+          if ((eps << 1) >= int(adx)) {
             --y;
 
             eps -= adx;
@@ -565,13 +565,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       if (dy > 0) {
         for (int x = x1; x >= x2; --x, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += ady;
 
-          if ((eps << 1) >= (int) adx) {
+          if ((eps << 1) >= int(adx)) {
             ++y;
 
             eps -= adx;
@@ -581,13 +581,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       else {
         for (int x = x1; x >= x2; --x, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += ady;
 
-          if ((eps << 1) >= (int) adx) {
+          if ((eps << 1) >= int(adx)) {
             --y;
 
             eps -= adx;
@@ -614,13 +614,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       if (dx > 0) {
         for (int y = y1; y <= y2; ++y, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += adx;
 
-          if ((eps << 1) >= (int) ady) {
+          if ((eps << 1) >= int(ady)) {
             ++x;
 
             eps -= ady;
@@ -630,13 +630,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       else {
         for (int y = y1; y <= y2; ++y, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += adx;
 
-          if ((eps << 1) >= (int) ady) {
+          if ((eps << 1) >= int(ady)) {
             --x;
 
             eps -= ady;
@@ -648,13 +648,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       if (dx > 0) {
         for (int y = y1; y >= y2; --y, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += adx;
 
-          if ((eps << 1) >= (int) ady) {
+          if ((eps << 1) >= int(ady)) {
             ++x;
 
             eps -= ady;
@@ -664,13 +664,13 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
       else {
         for (int y = y1; y >= y2; --y, point += dpoint, zv += dzp) {
           if (line_dash_.isDraw())
-            setPoint(x, y, point, zv);
+            setPoint(uint(x), uint(y), point, zv);
 
           line_dash_.step(1);
 
           eps += adx;
 
-          if ((eps << 1) >= (int) ady) {
+          if ((eps << 1) >= int(ady)) {
             --x;
 
             eps -= ady;
@@ -687,7 +687,7 @@ drawPoints(const std::vector<CGeomVertex3D *> &vertices)
 {
   Point point;
 
-  uint num_vertices = vertices.size();
+  auto num_vertices = vertices.size();
 
   for (uint i = 0; i < num_vertices; ++i) {
     const CGeomVertex3D *vertex = vertices[i];
@@ -703,7 +703,7 @@ drawPoints(const std::vector<CGeomVertex3D *> &vertices)
     point.normal = vertex->getNormal();
     point.tmap   = vertex->getTextureMap();
 
-    setPoint(x, y, point, viewed.z);
+    setPoint(uint(x), uint(y), point, viewed.z);
   }
 }
 
@@ -724,7 +724,7 @@ setPoint(uint x, uint y, const Point &point, double zv)
 
   // Scissor Test
   if (gl_->getScissor().getEnabled()) {
-    if (! gl_->getScissor().getRect().inside(CIPoint2D(x, y)))
+    if (! gl_->getScissor().getRect().inside(CIPoint2D(int(x), int(y))))
       return;
   }
 
@@ -780,11 +780,11 @@ setPoint(uint x, uint y, const Point &point, double zv)
   if (gl_->getPolyStipple()) {
     CImagePtr stipple = gl_->getPolyStippleImage();
 
-    int w = stipple->getWidth ();
-    int h = stipple->getHeight();
+    int w = int(stipple->getWidth ());
+    int h = int(stipple->getHeight());
 
-    int y1 = y % h;
-    int x1 = x % w;
+    int y1 = int(y) % h;
+    int x1 = int(x) % w;
 
     double gray;
 
@@ -850,7 +850,7 @@ setPoint(uint x, uint y, const Point &point, double zv)
 
     const CImagePtr &texture = gl_->modifyTexture1Data().getTexture(key);
 
-    int w = texture->getWidth();
+    int w = int(texture->getWidth());
 
     int tx = std::min(std::max(int(point.tmap.x*(w - 1)), 0), w - 1);
 
@@ -871,8 +871,8 @@ setPoint(uint x, uint y, const Point &point, double zv)
     const CImagePtr &texture = gl_->modifyTexture2Data().getTextureImage(key);
 
      if (texture.isValid() && texture->isValid()) {
-      int w = texture->getWidth ();
-      int h = texture->getHeight();
+      int w = int(texture->getWidth ());
+      int h = int(texture->getHeight());
 
       uint wrap_s = gl_->getTexture2Data().getWrapS();
 
@@ -919,7 +919,7 @@ setPoint(uint x, uint y, const Point &point, double zv)
       CRGBA rgbaf = ppoint->rgba;
 
       int format = gl_->modifyTexture2Data().getTextureFormat(key);
-      int mode   = gl_->getTextureEnv().getMode();
+      int mode   = int(gl_->getTextureEnv().getMode());
 
       switch (mode) {
         case GL_MODULATE: {
@@ -1065,21 +1065,20 @@ setPoint(uint x, uint y, const Point &point, double zv)
 
     CGLTextureKey key(ind, level);
 
-    const CGLTexture3Data::CImagePtrStack &texture =
-      gl_->modifyTexture3Data().getTexture(key);
+    const auto &texture = gl_->modifyTexture3Data().getTexture(key);
 
-    int d = texture.size();
+    auto d = texture.size();
 
     if (d > 0) {
      if (texture[0].isValid() && texture[0]->isValid()) {
-        int w = texture[0]->getWidth ();
-        int h = texture[0]->getHeight();
+        int w = int(texture[0]->getWidth ());
+        int h = int(texture[0]->getHeight());
 
-        int x1 = std::min(std::max(int(point.tmap.x*(w - 1)), 0), w - 1);
-        int y1 = std::min(std::max(int(point.tmap.y*(h - 1)), 0), h - 1);
-        int z1 = std::min(std::max(int(point.tmap.z*(d - 1)), 0), d - 1);
+        int x1 = std::min(std::max(int(point.tmap.x*   (w - 1)), 0),     w - 1 );
+        int y1 = std::min(std::max(int(point.tmap.y*   (h - 1)), 0),     h - 1 );
+        int z1 = std::min(std::max(int(point.tmap.z*int(d - 1)), 0), int(d - 1));
 
-        texture[z1]->getRGBAPixel(x1, y1, ppoint->rgba);
+        texture[uint(z1)]->getRGBAPixel(x1, y1, ppoint->rgba);
       }
     }
   }
@@ -1156,7 +1155,7 @@ render(CPixelRenderer *renderer)
 
       renderer->setForeground(point->rgba);
 
-      renderer->drawClippedPoint(CIPoint2D(x, y));
+      renderer->drawClippedPoint(CIPoint2D(int(x), int(y)));
     }
   }
 }

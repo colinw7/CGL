@@ -541,67 +541,67 @@ class CGL
     back_material_.specular_ind = ind;
   }
 
-  void setLight(int num, const CGeomLight3D &light) {
+  void setLight(uint num, const CGeomLight3D &light) {
     *lights_[num] = light;
   }
 
-  const CGeomLight3D &getLight(int num) {
+  const CGeomLight3D &getLight(uint num) {
     return *lights_[num];
   }
 
-  void setLightEnabled(int num, bool flag) {
+  void setLightEnabled(uint num, bool flag) {
     lights_[num]->setEnabled(flag);
   }
 
-  bool getLightEnabled(int num) {
+  bool getLightEnabled(uint num) {
     return lights_[num]->getEnabled();
   }
 
-  void setLightPosition(int num, const CPoint3D &point) {
+  void setLightPosition(uint num, const CPoint3D &point) {
     lights_[num]->setAbsPosition(point);
   }
 
-  void setLightAmbient(int num, const CRGBA &rgba) {
+  void setLightAmbient(uint num, const CRGBA &rgba) {
     lights_[num]->setAmbient(rgba);
   }
 
-  void setLightDiffuse(int num, const CRGBA &rgba) {
+  void setLightDiffuse(uint num, const CRGBA &rgba) {
     lights_[num]->setDiffuse(rgba);
   }
 
-  void setLightSpecular(int num, const CRGBA &rgba) {
+  void setLightSpecular(uint num, const CRGBA &rgba) {
     lights_[num]->setSpecular(rgba);
   }
 
-  void setLightSpotDirection(int num, const CVector3D &direction) {
+  void setLightSpotDirection(uint num, const CVector3D &direction) {
     lights_[num]->setSpotDirection(direction);
   }
 
-  void setLightSpotExponent(int num, double exponent) {
+  void setLightSpotExponent(uint num, double exponent) {
     lights_[num]->setSpotExponent(exponent);
   }
 
-  void setLightSpotCutOff(int num, double cutoff) {
+  void setLightSpotCutOff(uint num, double cutoff) {
     lights_[num]->setSpotCutOff(cutoff);
   }
 
-  void setLightDirectional(int num, bool flag) {
+  void setLightDirectional(uint num, bool flag) {
     lights_[num]->setDirectional(flag);
   }
 
-  bool getLightDirectional(int num) {
+  bool getLightDirectional(uint num) {
     return lights_[num]->getDirectional();
   }
 
-  void setLightConstantAttenuation(int num, double attenuation) {
+  void setLightConstantAttenuation(uint num, double attenuation) {
     lights_[num]->setConstantAttenuation(attenuation);
   }
 
-  void setLightLinearAttenuation(int num, double attenuation) {
+  void setLightLinearAttenuation(uint num, double attenuation) {
     lights_[num]->setLinearAttenuation(attenuation);
   }
 
-  void setLightQuadraticAttenuation(int num, double attenuation) {
+  void setLightQuadraticAttenuation(uint num, double attenuation) {
     lights_[num]->setQuadraticAttenuation(attenuation);
   }
 
@@ -961,9 +961,7 @@ class CGL
     name_stack_[name_stack_.size() - 1] = name;
   }
 
-  uint numNames() {
-    return name_stack_.size();
-  }
+  uint numNames() { return uint(name_stack_.size()); }
 
   void drawChar(char c);
   void setFont(CFontPtr font);

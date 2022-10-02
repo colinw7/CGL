@@ -79,11 +79,11 @@ idle()
 
 CGLWind::
 CGLWind(int x, int y, int w, int h) :
- parent_(NULL), id_(0), mouse_button_(-1), timer_(NULL)
+ parent_(nullptr), id_(0), mouse_button_(-1), timer_(nullptr)
 {
   cgl_ = new CGL(this);
 
-  window_ = new CXWindow(x, y, w, h);
+  window_ = new CXWindow(x, y, uint(w), uint(h));
 
   window_->selectAllEvents();
   window_->selectPointerMotion();
@@ -103,11 +103,11 @@ CGLWind(int x, int y, int w, int h) :
 
 CGLWind::
 CGLWind(CGLWind *parent, int x, int y, int w, int h) :
- parent_(parent), id_(0), mouse_button_(-1), timer_(NULL)
+ parent_(parent), id_(0), mouse_button_(-1), timer_(nullptr)
 {
   cgl_ = new CGL(this);
 
-  window_ = new CXWindow(parent->window_, x, y, w, h);
+  window_ = new CXWindow(parent->window_, x, y, uint(w), uint(h));
 
   window_->selectAllEvents();
   window_->selectPointerMotion();
@@ -438,7 +438,7 @@ void
 CGLWind::
 setSize(const CISize2D &size)
 {
-  window_->resize(size.width, size.height);
+  window_->resize(uint(size.width), uint(size.height));
 }
 
 CISize2D
@@ -449,7 +449,7 @@ getSize() const
 
   window_->getSize(&w, &h);
 
-  return CISize2D(w, h);
+  return CISize2D(int(w), int(h));
 }
 
 void
@@ -513,10 +513,10 @@ updateSize()
 
   uint id = CGLMgrInst->setCurrentWindowId(id_);
 
-  renderer_->updateSize(window_->getWidth(), window_->getHeight());
+  renderer_->updateSize(int(window_->getWidth()), int(window_->getHeight()));
 
-  int w = renderer_->getWidth ();
-  int h = renderer_->getHeight();
+  int w = int(renderer_->getWidth ());
+  int h = int(renderer_->getHeight());
 
   cgl_->resize(w, h);
 
@@ -743,7 +743,7 @@ keyReleaseEvent(const CKeyEvent &kevent)
   else if (type == CKEY_TYPE_Insert)
     window_->callSpecialFunc(GLUT_KEY_INSERT, x, y);
   else
-    window_->callKeyboardFunc(kval, x, y);
+    window_->callKeyboardFunc(uchar(kval), x, y);
 
   return true;
 }

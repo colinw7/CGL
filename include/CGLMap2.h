@@ -142,7 +142,7 @@ class CGLMap2 {
     }
 
     for (uint i = 0; i < num_uvalues; ++i)
-      bu[i] = CMathGen::binomialCoeff(num_uvalues - 1, i)*uu[i]*ww[i];
+      bu[i] = double(CMathGen::binomialCoeff(num_uvalues - 1, i))*uu[i]*ww[i];
 
     *bu1 = bu;
 
@@ -155,7 +155,7 @@ class CGLMap2 {
     }
 
     for (uint i = 0; i < num_vvalues; ++i)
-      bv[i] = CMathGen::binomialCoeff(num_vvalues - 1, i)*vv[i]*xx[i];
+      bv[i] = double(CMathGen::binomialCoeff(num_vvalues - 1, i))*vv[i]*xx[i];
 
     *bv1 = bv;
   }

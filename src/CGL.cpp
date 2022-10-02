@@ -23,7 +23,7 @@ class CGLEventAdapter : public CXEventAdapter {
 
 CGLMgr::
 CGLMgr() :
- current_window_   (NULL),
+ current_window_   (nullptr),
  current_window_id_(0),
  window_rect_      (0,0,300,300),
  error_num_        (GL_NO_ERROR)
@@ -33,8 +33,8 @@ CGLMgr() :
 CGLMgr::
 ~CGLMgr()
 {
-  WindowMap::iterator p1 = window_map_.begin();
-  WindowMap::iterator p2 = window_map_.end();
+  auto p1 = window_map_.begin();
+  auto p2 = window_map_.end();
 
   for ( ; p1 != p2; ++p1)
     delete (*p1).second;
@@ -47,7 +47,7 @@ getCurrentGL() const
   if (current_window_)
     return current_window_->getGL();
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -115,7 +115,7 @@ void
 CGLMgr::
 createSubWindow(int window, int x, int y, int width, int height)
 {
-  CGLWind *parent = window_map_[window];
+  CGLWind *parent = window_map_[uint(window)];
 
   current_window_ = new CGLWind(parent, x, y, width, height);
 
@@ -128,8 +128,8 @@ void
 CGLMgr::
 deleteWindow(int window)
 {
-  WindowMap::iterator p1 = window_map_.find(window);
-  WindowMap::iterator p2 = window_map_.end();
+  auto p1 = window_map_.find(uint(window));
+  auto p2 = window_map_.end();
 
   if (p1 != p2) {
     delete (*p1).second;
@@ -166,7 +166,7 @@ getWindowFromId(uint window) const
   if (p1 != p2)
     return (*p1).second;
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -193,13 +193,13 @@ CGL::
 CGL(CGLWind *window) :
  window_                (window),
  viewport_              (0.0,0.0,0.0,1.0,1.0,1.0),
- color_buffer_          (NULL),
+ color_buffer_          (nullptr),
  render_mode_           (GL_RENDER),
  bg_                    (0.0, 0.0, 0.0, 1.0),
  lighting_              (false),
  flat_shading_          (false),
  line_width_            (1.0),
- current_display_list_  (NULL),
+ current_display_list_  (nullptr),
  matrix_mode_           (GL_MODELVIEW),
  double_buffer_         (true),
  point_size_            (1.0),
@@ -220,7 +220,7 @@ CGL(CGLWind *window) :
  fog_hint_              (GL_DONT_CARE),
  block_type_            (-1),
  list_base_             (0),
- raster_pos_            (NULL, CPoint3D(0,0,0)),
+ raster_pos_            (nullptr, CPoint3D(0,0,0)),
  color_table_enabled_   (false),
  convolution_2d_enabled_(false),
  histogram_enabled_     (false),
@@ -245,7 +245,7 @@ CGL(CGLWind *window) :
 CGL::
 ~CGL()
 {
-  for (int i = 0; i < NUM_LIGHTS; ++i)
+  for (uint i = 0; i < NUM_LIGHTS; ++i)
     delete lights_[i];
 
   delete color_buffer_;
@@ -255,10 +255,10 @@ void
 CGL::
 initLights()
 {
-  for (int i = 0; i < NUM_LIGHTS; ++i)
-    lights_.push_back(new CGeomLight3D(NULL));
+  for (uint i = 0; i < NUM_LIGHTS; ++i)
+    lights_.push_back(new CGeomLight3D(nullptr));
 
-  for (int i = 0; i < NUM_LIGHTS; ++i) {
+  for (uint i = 0; i < NUM_LIGHTS; ++i) {
     lights_[i]->setEnabled(false);
 
     lights_[i]->getObject()->moveTo(CPoint3D(0, 0, 1));
@@ -428,14 +428,14 @@ setMaterialV(uint face, uint pname, double *params, uint num_params)
     }
     else if (pname == GL_COLOR_INDEXES) {
       if (face == GL_FRONT || face == GL_FRONT_AND_BACK) {
-        setFrontMaterialAmbientInd ((int) params[0]);
-        setFrontMaterialDiffuseInd ((int) params[1]);
-        setFrontMaterialSpecularInd((int) params[2]);
+        setFrontMaterialAmbientInd (int(params[0]));
+        setFrontMaterialDiffuseInd (int(params[1]));
+        setFrontMaterialSpecularInd(int(params[2]));
       }
       if (face == GL_BACK  || face == GL_FRONT_AND_BACK) {
-        setBackMaterialAmbientInd ((int) params[0]);
-        setBackMaterialDiffuseInd ((int) params[1]);
-        setBackMaterialSpecularInd((int) params[2]);
+        setBackMaterialAmbientInd (int(params[0]));
+        setBackMaterialDiffuseInd (int(params[1]));
+        setBackMaterialSpecularInd(int(params[2]));
       }
     }
     else
@@ -468,20 +468,20 @@ endBlock()
 {
   if (executeCommand()) {
     if      (block_type_ == GL_POINTS) {
-      VertexList::iterator p1 = block_points_.begin();
-      VertexList::iterator p2 = block_points_.end  ();
+      auto p1 = block_points_.begin();
+      auto p2 = block_points_.end  ();
 
       for ( ; p1 != p2; ++p1)
         drawPoint(*p1);
     }
     else if (block_type_ == GL_LINES) {
-      int num_lines = block_points_.size()/2;
+      auto num_lines = block_points_.size()/2;
 
-      VertexList::iterator p2 = block_points_.begin();
-      //VertexList::iterator p3 = block_points_.end  ();
+      auto p2 = block_points_.begin();
+    //auto p3 = block_points_.end  ();
 
-      for (int i = 0; i < num_lines; ++i) {
-        VertexList::iterator p1 = p2++;
+      for (uint i = 0; i < num_lines; ++i) {
+        auto p1 = p2++;
 
         drawLine(*p1, *p2, i == 0);
 
@@ -489,16 +489,16 @@ endBlock()
       }
     }
     else if (block_type_ == GL_LINE_STRIP) {
-      int num_lines = 0;
+      uint num_lines = 0;
 
       if (block_points_.size() >= 2)
-        num_lines = block_points_.size() - 1;
+        num_lines = uint(block_points_.size() - 1);
 
-      VertexList::iterator p2 = block_points_.begin();
-      //VertexList::iterator p3 = block_points_.end  ();
+      auto p2 = block_points_.begin();
+    //auto p3 = block_points_.end  ();
 
-      for (int i = 0; i < num_lines; ++i) {
-        VertexList::iterator p1 = p2++;
+      for (uint i = 0; i < num_lines; ++i) {
+        auto p1 = p2++;
 
         drawLine(*p1, *p2, i == 0);
       }
@@ -507,9 +507,9 @@ endBlock()
       if (block_points_.size() <= 2)
         return;
 
-      VertexList::iterator p2 = block_points_.begin();
-      VertexList::iterator p1 = p2++;
-      VertexList::iterator p3 = block_points_.end  ();
+      auto p2 = block_points_.begin();
+      auto p1 = p2++;
+      auto p3 = block_points_.end  ();
 
       for (int i = 0; p2 != p3; p1 = p2, ++p2, ++i)
         drawLine(*p1, *p2, i == 0);
@@ -520,15 +520,15 @@ endBlock()
         drawLine(*p1, *p2, false);
     }
     else if (block_type_ == GL_TRIANGLES) {
-      uint num = block_points_.size() / 3;
+      auto num = block_points_.size() / 3;
 
       VertexList points;
 
-      VertexList::iterator p3 = block_points_.begin();
+      auto p3 = block_points_.begin();
 
       for (uint i = 0; i < num; ++i) {
-        VertexList::iterator p1 = p3++;
-        VertexList::iterator p2 = p3++;
+        auto p1 = p3++;
+        auto p2 = p3++;
 
         points.clear();
 
@@ -536,7 +536,7 @@ endBlock()
         points.push_back(*p2);
         points.push_back(*p3);
 
-        drawPolygon(block_type_, points);
+        drawPolygon(uint(block_type_), points);
 
         ++p3;
       }
@@ -545,13 +545,13 @@ endBlock()
       if (block_points_.size() <= 2)
         return;
 
-      uint num = block_points_.size() - 2;
+      auto num = block_points_.size() - 2;
 
       VertexList points;
 
-      VertexList::iterator p3 = block_points_.begin();
-      VertexList::iterator p1 = p3++;
-      VertexList::iterator p2 = p3++;
+      auto p3 = block_points_.begin();
+      auto p1 = p3++;
+      auto p2 = p3++;
 
       for (uint i = 1; i <= num; ++i) {
         points.clear();
@@ -567,7 +567,7 @@ endBlock()
           points.push_back(*p3);
         }
 
-        drawPolygon(block_type_, points);
+        drawPolygon(uint(block_type_), points);
 
         p1 = p2;
         p2 = p3++;
@@ -577,13 +577,13 @@ endBlock()
       if (block_points_.size() <= 2)
         return;
 
-      uint num = block_points_.size() - 2;
+      auto num = block_points_.size() - 2;
 
       VertexList points;
 
-      VertexList::iterator p3 = block_points_.begin();
-      VertexList::iterator p1 = p3++;
-      VertexList::iterator p2 = p3++;
+      auto p3 = block_points_.begin();
+      auto p1 = p3++;
+      auto p2 = p3++;
 
       for (uint i = 1; i <= num; ++i) {
         points.clear();
@@ -592,22 +592,22 @@ endBlock()
         points.push_back(*p2);
         points.push_back(*p3);
 
-        drawPolygon(block_type_, points);
+        drawPolygon(uint(block_type_), points);
 
         p2 = p3++;
       }
     }
     else if (block_type_ == GL_QUADS) {
-      uint num = block_points_.size() / 4;
+      auto num = block_points_.size() / 4;
 
       VertexList points;
 
-      VertexList::iterator p4 = block_points_.begin();
+      auto p4 = block_points_.begin();
 
       for (uint i = 0; i < num; ++i) {
-        VertexList::iterator p1 = p4++;
-        VertexList::iterator p2 = p4++;
-        VertexList::iterator p3 = p4++;
+        auto p1 = p4++;
+        auto p2 = p4++;
+        auto p3 = p4++;
 
         points.clear();
 
@@ -616,7 +616,7 @@ endBlock()
         points.push_back(*p3);
         points.push_back(*p4);
 
-        drawPolygon(block_type_, points);
+        drawPolygon(uint(block_type_), points);
 
         ++p4;
       }
@@ -625,16 +625,16 @@ endBlock()
       if (block_points_.size() < 4)
         return;
 
-      uint num = block_points_.size()/2 - 1;
+      auto num = block_points_.size()/2 - 1;
 
       VertexList points;
 
-      VertexList::iterator p4 = block_points_.begin();
+      auto p4 = block_points_.begin();
 
       for (uint i = 0; i < num; ++i) {
-        VertexList::iterator p1 = p4++;
-        VertexList::iterator p2 = p4++;
-        VertexList::iterator p3 = p4++;
+        auto p1 = p4++;
+        auto p2 = p4++;
+        auto p3 = p4++;
 
         points.clear();
 
@@ -643,13 +643,13 @@ endBlock()
         points.push_back(*p4);
         points.push_back(*p3);
 
-        drawPolygon(block_type_, points);
+        drawPolygon(uint(block_type_), points);
 
         p4 = p3;
       }
     }
     else if (block_type_ == GL_POLYGON)
-      drawPolygon(block_type_, block_points_);
+      drawPolygon(uint(block_type_), block_points_);
 
     for_each(block_points_.begin(), block_points_.end(), CDeletePointer());
 
@@ -674,7 +674,7 @@ CGL::
 addBlockPoint(const CPoint3D &point)
 {
   if (executeCommand()) {
-    CGeomVertex3D *vertex = new CGeomVertex3D(NULL, point);
+    CGeomVertex3D *vertex = new CGeomVertex3D(nullptr, point);
 
     if (getForegroundSet())
       vertex->setColor(getForeground());
@@ -699,7 +699,7 @@ CGL::
 addBlockPoint(const CPoint3D &point, const CRGBA &rgba,
               const CVector3D &normal, const CPoint3D &tmap)
 {
-  CGeomVertex3D *vertex = new CGeomVertex3D(NULL, point);
+  CGeomVertex3D *vertex = new CGeomVertex3D(nullptr, point);
 
   vertex->setColor     (rgba);
   vertex->setNormal    (normal);
@@ -716,7 +716,7 @@ addBlockPoint(const CPoint3D &point,
               const COptValT<CPoint3D> &tmap)
 {
   if (executeCommand()) {
-    CGeomVertex3D *vertex = new CGeomVertex3D(NULL, point);
+    CGeomVertex3D *vertex = new CGeomVertex3D(nullptr, point);
 
     if (rgba.isValid())
       vertex->setColor(rgba.getValue());
@@ -808,7 +808,7 @@ drawPoint(CGeomVertex3D *vertex)
                                vertex->getTextureMap());
 
   if (point_size_ > 1.5) {
-    uint diameter = CMathRound::Round(point_size_);
+    uint diameter = uint(CMathRound::Round(point_size_));
 
     uint radius = diameter >> 1;
 
@@ -820,7 +820,7 @@ drawPoint(CGeomVertex3D *vertex)
     }
 
     for (uint y = 1; y <= radius; ++y) {
-      uint width = CMathRound::Round(sqrt(radius2 - y*y));
+      uint width = uint(CMathRound::Round(sqrt(radius2 - y*y)));
 
       for (uint x = uint(point.x) - width; x < uint(point.x) + width; ++x) {
         getColorBuffer().setPoint(x, uint(point.y) + y, bpoint, viewed.z);
@@ -946,8 +946,7 @@ drawPolygon(uint mode, const VertexList &vertices)
   }
 
   if (max_x < 0 || max_y < 0 ||
-      min_x >= (int) color_buffer.getWidth () ||
-      min_y >= (int) color_buffer.getHeight())
+      min_x >= int(color_buffer.getWidth()) || min_y >= int(color_buffer.getHeight()))
     return;
 
   if (getCullFace().getEnabled()) {
@@ -1019,7 +1018,7 @@ drawPolygon(uint mode, const VertexList &vertices)
     for ( ; pn1 != pn2; ++pn1)
       names.push_back(*pn1);
 
-    select.addHit(min_z, max_z, names);
+    select.addHit(uint(min_z), uint(max_z), names);
 
     return;
   }
@@ -1165,10 +1164,10 @@ transformVertex(CGeomVertex3D *vertex)
   // clip to extra matrices
   for (uint i = 0; i < MAX_CLIP_PLANES; ++i) {
     // TODO: transform by transpose inverse modelview
-    if (! clipPlaneEnabled(i)) continue;
+    if (! clipPlaneEnabled(int(i))) continue;
 
     if (vertex->getClipSide() != CCLIP_SIDE_OUTSIDE)
-      vertex->setClipSide(getClipSide(i, vpoint));
+      vertex->setClipSide(getClipSide(int(i), vpoint));
   }
 
   //--------
@@ -1223,8 +1222,8 @@ void
 CGL::
 resize(int w, int h)
 {
-  getColorBuffer().resize(w, h);
-  getAccumBuffer().resize(w, h);
+  getColorBuffer().resize(uint(w), uint(h));
+  getAccumBuffer().resize(uint(w), uint(h));
 }
 
 #if 0
@@ -1261,7 +1260,7 @@ createDisplayList()
 
   display_list_map_[id] = display_list;
 
-  return id;
+  return int(id);
 }
 
 bool
@@ -1289,7 +1288,7 @@ bool
 CGL::
 endDisplayList()
 {
-  current_display_list_ = NULL;
+  current_display_list_ = nullptr;
 
   return true;
 }
@@ -1298,7 +1297,7 @@ bool
 CGL::
 inDisplayList() const
 {
-  return (current_display_list_ != NULL);
+  return (current_display_list_ != nullptr);
 }
 
 bool
@@ -1319,7 +1318,7 @@ isDisplayList(uint id)
 {
   CGLDisplayList *display_list = lookupDisplayList(id);
 
-  return (display_list != NULL);
+  return (display_list != nullptr);
 }
 
 CGLDisplayList *
@@ -1332,7 +1331,7 @@ lookupDisplayList(uint id)
   if (pdisplay_list1 != pdisplay_list2)
     return (*pdisplay_list1).second;
 
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -1342,7 +1341,7 @@ deleteDisplayList(uint id)
   if (display_list_map_.find(id) != display_list_map_.end()) {
     delete display_list_map_[id];
 
-    display_list_map_[id] = NULL;
+    display_list_map_[id] = nullptr;
   }
 }
 
@@ -1542,7 +1541,7 @@ getMatrix(int mode) const
   else if (mode == GL_COLOR)
     return color_matrix_stack_[color_matrix_stack_.size() - 1];
   else
-    return NULL;
+    return nullptr;
 }
 
 CMatrix3DH *
@@ -1583,7 +1582,7 @@ CGL::
 drawBitmapI(uint width, uint height, double xorig, double yorig,
             double xmove, double ymove, const uchar *bitmap)
 {
-  if (bitmap != NULL) {
+  if (bitmap != nullptr) {
     CGLColorBuffer &color_buffer = getColorBuffer();
 
     const CPoint3D &point = getRasterPos().getPixel();
@@ -1633,7 +1632,7 @@ drawRGBAImage(uint width, uint height, const uchar *image, uint num_components, 
   static uint   image_buffer_size;
   static CRGBA *image_buffer1, *image_buffer2;
 
-  if (image == NULL)
+  if (image == nullptr)
     return;
 
   //-------
@@ -1735,8 +1734,8 @@ drawRGBAImage(uint width, uint height, const uchar *image, uint num_components, 
     uint fwidth  = filter.getWidth ();
     uint fheight = filter.getHeight();
 
-    int dx = fwidth  >> 1;
-    int dy = fheight >> 1;
+    uint dx = fwidth  >> 1;
+    uint dy = fheight >> 1;
 
     for (uint i = 0; i < image_buffer_size; ++i)
       image_buffer2[i] = image_buffer1[i];
@@ -1832,10 +1831,10 @@ drawRGBAImage(uint width, uint height, const uchar *image, uint num_components, 
     for (uint x = 0; x < width; ++x, xp1 = xp2, xp2 += xs, ++op) {
       bpoint.rgba = *op;
 
-      uint nx = std::abs(int(xp2) - int(xp1));
+      uint nx = uint(std::abs(int(xp2) - int(xp1)));
 
       for (uint ix = 0, xs1 = uint(xp1); ix <= nx; ++ix, ++xs1) {
-        uint ny = std::abs(int(yp2) - int(yp1));
+        uint ny = uint(std::abs(int(yp2) - int(yp1)));
 
         for (uint iy = 0, ys1 = uint(yp1); iy <= ny; ++iy, ++ys1) {
           color_buffer.setPoint(xs1, ys1, bpoint, viewed.z);
@@ -1863,7 +1862,7 @@ CGL::
 readColorImage(int x, int y, uint width, uint height, uchar *pixels,
                uint num_components, bool process)
 {
-  CGeomVertex3D vertex(NULL, CPoint3D(x, y, 0));
+  CGeomVertex3D vertex(nullptr, CPoint3D(x, y, 0));
 
   transformVertex(&vertex);
 
@@ -1901,10 +1900,10 @@ readColorImage(int x, int y, uint width, uint height, uchar *pixels,
           a = a*pixel_transfer.getAlphaScale() + pixel_transfer.getAlphaBias();
         }
 
-        p[0] = int(r*factor);
-        p[1] = int(g*factor);
-        p[2] = int(b*factor);
-        p[3] = int(a*factor);
+        p[0] = uchar(r*factor);
+        p[1] = uchar(g*factor);
+        p[2] = uchar(b*factor);
+        p[3] = uchar(a*factor);
       }
     }
     else {
@@ -1921,9 +1920,9 @@ readColorImage(int x, int y, uint width, uint height, uchar *pixels,
           b = b*pixel_transfer.getBlueScale () + pixel_transfer.getBlueBias ();
         }
 
-        p[0] = int(r*factor);
-        p[1] = int(g*factor);
-        p[2] = int(b*factor);
+        p[0] = uchar(r*factor);
+        p[1] = uchar(g*factor);
+        p[2] = uchar(b*factor);
       }
     }
   }
@@ -2137,9 +2136,9 @@ drawChar(char c)
 
   CImagePtr image = font->getCharImage(c);
 
-  int iwidth  = image->getWidth ();
-  int iheight = image->getHeight();
-  int ascent  = font->getICharAscent();
+  int iwidth  = int(image->getWidth ());
+  int iheight = int(image->getHeight());
+  int ascent  = int(font->getICharAscent());
 
   int x1 = 0;
   int x2 = iwidth  - 1;
@@ -2158,7 +2157,7 @@ drawChar(char c)
       int x = int(point.x) + xx;
       int y = int(point.y) - yy + ascent;
 
-      color_buffer.setPoint(x, y, bpoint, viewed.z);
+      color_buffer.setPoint(uint(x), uint(y), bpoint, viewed.z);
     }
   }
 

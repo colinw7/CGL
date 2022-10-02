@@ -189,7 +189,7 @@ glutBitmapCharacter(void *font, int character)
 
   gl->setFont(pfont);
 
-  gl->drawChar(character);
+  gl->drawChar(char(character));
 }
 
 void
@@ -221,7 +221,7 @@ glutCreateMenu(void (*callback)(int menu))
 {
   glut_menu = new CGLMenu(callback);
 
-  return glut_menu->getId();
+  return int(glut_menu->getId());
 }
 
 int
@@ -229,7 +229,7 @@ glutCreateSubWindow(int window, int x, int y, int width, int height)
 {
   CGLMgrInst->createSubWindow(window, x, y, width, height);
 
-  return CGLMgrInst->getCurrentWindowId();
+  return int(CGLMgrInst->getCurrentWindowId());
 }
 
 int
@@ -237,19 +237,19 @@ glutCreateWindow(const char *name)
 {
   CGLMgrInst->createWindow(name);
 
-  return CGLMgrInst->getCurrentWindowId();
+  return int(CGLMgrInst->getCurrentWindowId());
 }
 
 void
 glutDetachMenu(int id)
 {
-  CGLMgrInst->getCurrentWindow()->setMenu(-1, id);
+  CGLMgrInst->getCurrentWindow()->setMenu(-1, uint(id));
 }
 
 void
 glutDestroyMenu(int id)
 {
-  CGLMenu *menu = CGLMenu::lookupMenu(id);
+  auto *menu = CGLMenu::lookupMenu(uint(id));
 
   delete menu;
 }
@@ -399,7 +399,7 @@ glutGet(GLenum query)
       return 0;
     case GLUT_MENU_NUM_ITEMS: {
       if (glut_menu)
-        return glut_menu->getNumItems();
+        return int(glut_menu->getNumItems());
       else
         return 0;
     }
@@ -422,7 +422,7 @@ glutGet(GLenum query)
 
       CHRTime dt = COSTime::diffHRTime(glut_start_time, t);
 
-      return int(1000*dt.secs + dt.usecs*0.001);
+      return int(1000.0*double(dt.secs) + double(dt.usecs)*0.001);
     }
     case GLUT_WINDOW_FORMAT_ID:
       CGLMgrInst->unimplemented("glutGet GLUT_WINDOW_FORMAT_ID");
@@ -445,7 +445,7 @@ int
 glutGetMenu()
 {
   if (glut_menu)
-    return glut_menu->getId();
+    return int(glut_menu->getId());
   else
     return 0;
 }
@@ -469,7 +469,7 @@ glutGetProcAddress(const char * /*procName*/)
 int
 glutGetWindow()
 {
-  return CGLMgrInst->getCurrentWindowId();
+  return int(CGLMgrInst->getCurrentWindowId());
 }
 
 void
@@ -559,28 +559,28 @@ glutInit(int *argc, char **argv)
 void
 glutInitDisplayMode(uint mode)
 {
-  CGLGlutInst->setDisplayMode(mode);
+  CGLGlutInst->setDisplayMode(int(mode));
 
   if (mode & GLUT_SINGLE)
-    mode &= ~GLUT_SINGLE;
+    mode &= ~uint(GLUT_SINGLE);
 
   if (mode & GLUT_DOUBLE)
-    mode &= ~GLUT_DOUBLE;
+    mode &= ~uint(GLUT_DOUBLE);
 
   if (mode & GLUT_RGB)
-    mode &= ~GLUT_RGB;
+    mode &= ~uint(GLUT_RGB);
 
   if (mode & GLUT_RGBA)
-    mode &= ~GLUT_RGBA;
+    mode &= ~uint(GLUT_RGBA);
 
   if (mode & GLUT_DEPTH)
-    mode &= ~GLUT_DEPTH;
+    mode &= ~uint(GLUT_DEPTH);
 
   if (mode & GLUT_ACCUM)
-    mode &= ~GLUT_ACCUM;
+    mode &= ~uint(GLUT_ACCUM);
 
   if (mode & GLUT_STENCIL)
-    mode &= ~GLUT_STENCIL;
+    mode &= ~uint(GLUT_STENCIL);
 
   if (mode != 0)
     CGLMgrInst->unimplemented(CStrUtil::strprintf("glutInitDisplayMode: %d", mode));
@@ -754,13 +754,13 @@ glutSetIconTitle(const char *title)
 void
 glutSetMenu(int menu)
 {
-  glut_menu = CGLMenu::lookupMenu(menu);
+  glut_menu = CGLMenu::lookupMenu(uint(menu));
 }
 
 void
 glutSetWindow(int win)
 {
-  CGLMgrInst->setCurrentWindowId(win);
+  CGLMgrInst->setCurrentWindowId(uint(win));
 }
 
 void
@@ -858,14 +858,16 @@ glutVisibilityFunc(void (*func)(int state))
 void
 glutSolidCube(GLdouble size)
 {
+  auto sizef = float(size);
+
   GLfloat v[8][3];
 
-  v[0][0] = v[1][0] = v[2][0] = v[3][0] = -size / 2;
-  v[4][0] = v[5][0] = v[6][0] = v[7][0] =  size / 2;
-  v[0][1] = v[1][1] = v[4][1] = v[5][1] = -size / 2;
-  v[2][1] = v[3][1] = v[6][1] = v[7][1] =  size / 2;
-  v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size / 2;
-  v[1][2] = v[2][2] = v[5][2] = v[6][2] =  size / 2;
+  v[0][0] = v[1][0] = v[2][0] = v[3][0] = -sizef / 2.0f;
+  v[4][0] = v[5][0] = v[6][0] = v[7][0] =  sizef / 2.0f;
+  v[0][1] = v[1][1] = v[4][1] = v[5][1] = -sizef / 2.0f;
+  v[2][1] = v[3][1] = v[6][1] = v[7][1] =  sizef / 2.0f;
+  v[0][2] = v[3][2] = v[4][2] = v[7][2] = -sizef / 2.0f;
+  v[1][2] = v[2][2] = v[5][2] = v[6][2] =  sizef / 2.0f;
 
   for (GLint i = 5; i >= 0; i--) {
     glBegin(GL_POLYGON);
@@ -884,14 +886,16 @@ glutSolidCube(GLdouble size)
 void
 glutWireCube(GLdouble size)
 {
+  auto sizef = float(size);
+
   GLfloat v[8][3];
 
-  v[0][0] = v[1][0] = v[2][0] = v[3][0] = -size / 2;
-  v[4][0] = v[5][0] = v[6][0] = v[7][0] =  size / 2;
-  v[0][1] = v[1][1] = v[4][1] = v[5][1] = -size / 2;
-  v[2][1] = v[3][1] = v[6][1] = v[7][1] =  size / 2;
-  v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size / 2;
-  v[1][2] = v[2][2] = v[5][2] = v[6][2] =  size / 2;
+  v[0][0] = v[1][0] = v[2][0] = v[3][0] = -sizef / 2.0f;
+  v[4][0] = v[5][0] = v[6][0] = v[7][0] =  sizef / 2.0f;
+  v[0][1] = v[1][1] = v[4][1] = v[5][1] = -sizef / 2.0f;
+  v[2][1] = v[3][1] = v[6][1] = v[7][1] =  sizef / 2.0f;
+  v[0][2] = v[3][2] = v[4][2] = v[7][2] = -sizef / 2.0f;
+  v[1][2] = v[2][2] = v[5][2] = v[6][2] =  sizef / 2.0f;
 
   for (GLint i = 5; i >= 0; i--) {
     glBegin(GL_LINE_LOOP);
@@ -912,13 +916,13 @@ glutWireCube(GLdouble size)
 void
 glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 {
-  std::vector<double> c; c.resize(num_patches);
-  std::vector<double> s; s.resize(num_patches);
+  std::vector<double> c; c.resize(uint(num_patches));
+  std::vector<double> s; s.resize(uint(num_patches));
 
   double theta           = 0.0;
   double theta_increment = 2.0*M_PI/num_patches;
 
-  for (int i = 0; i < num_patches; i++) {
+  for (uint i = 0; i < uint(num_patches); i++) {
     c[i] = cos(theta);
     s[i] = sin(theta);
 
@@ -927,28 +931,28 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 
   int num_points = 0;
 
-  std::vector<int> index1; index1.resize(num_patches + 1);
-  std::vector<int> index2; index2.resize(num_patches + 1);
+  std::vector<int> index1; index1.resize(uint(num_patches + 1));
+  std::vector<int> index2; index2.resize(uint(num_patches + 1));
 
   int *pindex1 = &index1[0];
   int *pindex2 = &index2[0];
 
-  std::vector<CPoint3D> points ; points .resize(num_patches*num_xy);
-  std::vector<CPoint3D> normals; normals.resize(num_patches*num_xy);
+  std::vector<CPoint3D> points ; points .resize(uint(num_patches*num_xy));
+  std::vector<CPoint3D> normals; normals.resize(uint(num_patches*num_xy));
 
   if (fabs(x[0]) < CMathGen::EPSILON_E6) {
-    points [num_points] = CPoint3D(0.0, y[0], 0.0);
-    normals[num_points] = CPoint3D(0.0, y[0], 0.0);
+    points [uint(num_points)] = CPoint3D(0.0, y[0], 0.0);
+    normals[uint(num_points)] = CPoint3D(0.0, y[0], 0.0);
 
-    for (int i = 0; i <= num_patches; i++)
+    for (uint i = 0; i <= uint(num_patches); i++)
       pindex1[i] = num_points;
 
     num_points++;
   }
   else {
-    for (int i = 0; i < num_patches; i++) {
-      points [num_points] = CPoint3D(x[0]*c[i], y[0], -x[0]*s[i]);
-      normals[num_points] = CPoint3D(x[0]*c[i], y[0], -x[0]*s[i]);
+    for (uint i = 0; i < uint(num_patches); i++) {
+      points [uint(num_points)] = CPoint3D(x[0]*c[i], y[0], -x[0]*s[i]);
+      normals[uint(num_points)] = CPoint3D(x[0]*c[i], y[0], -x[0]*s[i]);
 
       pindex1[i] = num_points;
 
@@ -960,8 +964,8 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 
   for (int j = 1; j < num_xy; j++) {
     if (fabs(x[j]) < CMathGen::EPSILON_E6) {
-      points [num_points] = CPoint3D(0.0, y[j], 0.0);
-      normals[num_points] = CPoint3D(0.0, y[j], 0.0);
+      points [uint(num_points)] = CPoint3D(0.0, y[j], 0.0);
+      normals[uint(num_points)] = CPoint3D(0.0, y[j], 0.0);
 
       for (int i = 0; i <= num_patches; i++)
         pindex2[i] = num_points;
@@ -969,9 +973,9 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
       num_points++;
     }
     else {
-      for (int i = 0; i < num_patches; i++) {
-        points [num_points] = CPoint3D(x[j]*c[i], y[j], -x[j]*s[i]);
-        normals[num_points] = CPoint3D(x[j]*c[i], y[j], -x[j]*s[i]);
+      for (uint i = 0; i < uint(num_patches); i++) {
+        points [uint(num_points)] = CPoint3D(x[j]*c[i], y[j], -x[j]*s[i]);
+        normals[uint(num_points)] = CPoint3D(x[j]*c[i], y[j], -x[j]*s[i]);
 
         pindex2[i] = num_points;
 
@@ -983,64 +987,64 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 
     if (pindex1[0] != pindex1[1]) {
       if (pindex2[0] == pindex2[1]) {
-        for (int i = 0; i < num_patches; i++) {
-          glBegin(mode);
+        for (uint i = 0; i < uint(num_patches); i++) {
+          glBegin(uint(mode));
 
-          glNormal3d(normals[pindex1[i + 1]].x,
-                     normals[pindex1[i + 1]].z,
-                     normals[pindex1[i + 1]].y);
-          glVertex3d(points [pindex1[i + 1]].x,
-                     points [pindex1[i + 1]].z,
-                     points [pindex1[i + 1]].y);
+          glNormal3d(normals[uint(pindex1[i + 1])].x,
+                     normals[uint(pindex1[i + 1])].z,
+                     normals[uint(pindex1[i + 1])].y);
+          glVertex3d(points [uint(pindex1[i + 1])].x,
+                     points [uint(pindex1[i + 1])].z,
+                     points [uint(pindex1[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i    ]].x,
-                     normals[pindex2[i    ]].z,
-                     normals[pindex2[i    ]].y);
-          glVertex3d(points [pindex2[i    ]].x,
-                     points [pindex2[i    ]].z,
-                     points [pindex2[i    ]].y);
+          glNormal3d(normals[uint(pindex2[i    ])].x,
+                     normals[uint(pindex2[i    ])].z,
+                     normals[uint(pindex2[i    ])].y);
+          glVertex3d(points [uint(pindex2[i    ])].x,
+                     points [uint(pindex2[i    ])].z,
+                     points [uint(pindex2[i    ])].y);
 
-          glNormal3d(normals[pindex1[i    ]].x,
-                     normals[pindex1[i    ]].z,
-                     normals[pindex1[i    ]].y);
-          glVertex3d(points [pindex1[i    ]].x,
-                     points [pindex1[i    ]].z,
-                     points [pindex1[i    ]].y);
+          glNormal3d(normals[uint(pindex1[i    ])].x,
+                     normals[uint(pindex1[i    ])].z,
+                     normals[uint(pindex1[i    ])].y);
+          glVertex3d(points [uint(pindex1[i    ])].x,
+                     points [uint(pindex1[i    ])].z,
+                     points [uint(pindex1[i    ])].y);
 
           glEnd();
         }
       }
       else {
-        for (int i = 0; i < num_patches; i++) {
-          glBegin(mode);
+        for (uint i = 0; i < uint(num_patches); i++) {
+          glBegin(uint(mode));
 
-          glNormal3d(normals[pindex1[i + 1]].x,
-                     normals[pindex1[i + 1]].z,
-                     normals[pindex1[i + 1]].y);
-          glVertex3d(points [pindex1[i + 1]].x,
-                     points [pindex1[i + 1]].z,
-                     points [pindex1[i + 1]].y);
+          glNormal3d(normals[uint(pindex1[i + 1])].x,
+                     normals[uint(pindex1[i + 1])].z,
+                     normals[uint(pindex1[i + 1])].y);
+          glVertex3d(points [uint(pindex1[i + 1])].x,
+                     points [uint(pindex1[i + 1])].z,
+                     points [uint(pindex1[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i + 1]].x,
-                     normals[pindex2[i + 1]].z,
-                     normals[pindex2[i + 1]].y);
-          glVertex3d(points [pindex2[i + 1]].x,
-                     points [pindex2[i + 1]].z,
-                     points [pindex2[i + 1]].y);
+          glNormal3d(normals[uint(pindex2[i + 1])].x,
+                     normals[uint(pindex2[i + 1])].z,
+                     normals[uint(pindex2[i + 1])].y);
+          glVertex3d(points [uint(pindex2[i + 1])].x,
+                     points [uint(pindex2[i + 1])].z,
+                     points [uint(pindex2[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i    ]].x,
-                     normals[pindex2[i    ]].z,
-                     normals[pindex2[i    ]].y);
-          glVertex3d(points [pindex2[i    ]].x,
-                     points [pindex2[i    ]].z,
-                     points [pindex2[i    ]].y);
+          glNormal3d(normals[uint(pindex2[i    ])].x,
+                     normals[uint(pindex2[i    ])].z,
+                     normals[uint(pindex2[i    ])].y);
+          glVertex3d(points [uint(pindex2[i    ])].x,
+                     points [uint(pindex2[i    ])].z,
+                     points [uint(pindex2[i    ])].y);
 
-          glNormal3d(normals[pindex1[i    ]].x,
-                     normals[pindex1[i    ]].z,
-                     normals[pindex1[i    ]].y);
-          glVertex3d(points [pindex1[i    ]].x,
-                     points [pindex1[i    ]].z,
-                     points [pindex1[i    ]].y);
+          glNormal3d(normals[uint(pindex1[i    ])].x,
+                     normals[uint(pindex1[i    ])].z,
+                     normals[uint(pindex1[i    ])].y);
+          glVertex3d(points [uint(pindex1[i    ])].x,
+                     points [uint(pindex1[i    ])].z,
+                     points [uint(pindex1[i    ])].y);
 
           glEnd();
         }
@@ -1049,28 +1053,28 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
     else {
       if (pindex2[0] != pindex2[1]) {
         for (int i = 0; i < num_patches; i++) {
-          glBegin(mode);
+          glBegin(uint(mode));
 
-          glNormal3d(normals[pindex2[i + 1]].x,
-                     normals[pindex2[i + 1]].z,
-                     normals[pindex2[i + 1]].y);
-          glVertex3d(points [pindex2[i + 1]].x,
-                     points [pindex2[i + 1]].z,
-                     points [pindex2[i + 1]].y);
+          glNormal3d(normals[uint(pindex2[i + 1])].x,
+                     normals[uint(pindex2[i + 1])].z,
+                     normals[uint(pindex2[i + 1])].y);
+          glVertex3d(points [uint(pindex2[i + 1])].x,
+                     points [uint(pindex2[i + 1])].z,
+                     points [uint(pindex2[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i    ]].x,
-                     normals[pindex2[i    ]].z,
-                     normals[pindex2[i    ]].y);
-          glVertex3d(points [pindex2[i    ]].x,
-                     points [pindex2[i    ]].z,
-                     points [pindex2[i    ]].y);
+          glNormal3d(normals[uint(pindex2[i    ])].x,
+                     normals[uint(pindex2[i    ])].z,
+                     normals[uint(pindex2[i    ])].y);
+          glVertex3d(points [uint(pindex2[i    ])].x,
+                     points [uint(pindex2[i    ])].z,
+                     points [uint(pindex2[i    ])].y);
 
-          glNormal3d(normals[pindex1[i    ]].x,
-                     normals[pindex1[i    ]].z,
-                     normals[pindex1[i    ]].y);
-          glVertex3d(points [pindex1[i    ]].x,
-                     points [pindex1[i    ]].z,
-                     points [pindex1[i    ]].y);
+          glNormal3d(normals[uint(pindex1[i    ])].x,
+                     normals[uint(pindex1[i    ])].z,
+                     normals[uint(pindex1[i    ])].y);
+          glVertex3d(points [uint(pindex1[i    ])].x,
+                     points [uint(pindex1[i    ])].z,
+                     points [uint(pindex1[i    ])].y);
 
           glEnd();
         }
@@ -1087,13 +1091,13 @@ glutAddBodyRevX(int mode, double *x, double *y, int num_xy, int num_patches)
 void
 glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
 {
-  std::vector<double> c; c.resize(num_patches);
-  std::vector<double> s; s.resize(num_patches);
+  std::vector<double> c; c.resize(uint(num_patches));
+  std::vector<double> s; s.resize(uint(num_patches));
 
   double theta           = 0.0;
   double theta_increment = 2.0*M_PI/num_patches;
 
-  for (int i = 0; i < num_patches; i++) {
+  for (uint i = 0; i < uint(num_patches); i++) {
     c[i] = cos(theta);
     s[i] = sin(theta);
 
@@ -1102,18 +1106,18 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
 
   int num_points = 0;
 
-  std::vector<int> index1; index1.resize(num_patches + 1);
-  std::vector<int> index2; index2.resize(num_patches + 1);
+  std::vector<int> index1; index1.resize(uint(num_patches + 1));
+  std::vector<int> index2; index2.resize(uint(num_patches + 1));
 
   int *pindex1 = &index1[0];
   int *pindex2 = &index2[0];
 
-  std::vector<CPoint3D> points ; points .resize(num_patches*num_xy);
-  std::vector<CPoint3D> normals; normals.resize(num_patches*num_xy);
+  std::vector<CPoint3D> points ; points .resize(uint(num_patches*num_xy));
+  std::vector<CPoint3D> normals; normals.resize(uint(num_patches*num_xy));
 
   if (fabs(y[0]) < CMathGen::EPSILON_E6) {
-    points [num_points] = CPoint3D(x[0], 0.0, 0.0);
-    normals[num_points] = CPoint3D(x[0], 0.0, 0.0);
+    points [uint(num_points)] = CPoint3D(x[0], 0.0, 0.0);
+    normals[uint(num_points)] = CPoint3D(x[0], 0.0, 0.0);
 
     for (int i = 0; i <= num_patches; i++)
       pindex1[i] = num_points;
@@ -1121,9 +1125,9 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
     num_points++;
   }
   else {
-    for (int i = 0; i < num_patches; i++) {
-      points [num_points] = CPoint3D(x[0], y[0]*c[i], -y[0]*s[i]);
-      normals[num_points] = CPoint3D(x[0], y[0]*c[i], -y[0]*s[i]);
+    for (uint i = 0; i < uint(num_patches); i++) {
+      points [uint(num_points)] = CPoint3D(x[0], y[0]*c[i], -y[0]*s[i]);
+      normals[uint(num_points)] = CPoint3D(x[0], y[0]*c[i], -y[0]*s[i]);
 
       pindex1[i] = num_points;
 
@@ -1135,8 +1139,8 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
 
   for (int j = 1; j < num_xy; j++) {
     if (fabs(y[j]) < CMathGen::EPSILON_E6) {
-      points [num_points] = CPoint3D(x[j], 0.0, 0.0);
-      normals[num_points] = CPoint3D(x[j], 0.0, 0.0);
+      points [uint(num_points)] = CPoint3D(x[j], 0.0, 0.0);
+      normals[uint(num_points)] = CPoint3D(x[j], 0.0, 0.0);
 
       for (int i = 0; i <= num_patches; i++)
         pindex2[i] = num_points;
@@ -1144,9 +1148,9 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
       num_points++;
     }
     else {
-      for (int i = 0; i < num_patches; i++) {
-        points [num_points] = CPoint3D(x[j], y[j]*c[i], -y[j]*s[i]);
-        normals[num_points] = CPoint3D(x[j], y[j]*c[i], -y[j]*s[i]);
+      for (uint i = 0; i < uint(num_patches); i++) {
+        points [uint(num_points)] = CPoint3D(x[j], y[j]*c[i], -y[j]*s[i]);
+        normals[uint(num_points)] = CPoint3D(x[j], y[j]*c[i], -y[j]*s[i]);
 
         pindex2[i] = num_points;
 
@@ -1159,63 +1163,63 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
     if (pindex1[0] != pindex1[1]) {
       if (pindex2[0] == pindex2[1]) {
         for (int i = 0; i < num_patches; i++) {
-          glBegin(mode);
+          glBegin(uint(mode));
 
-          glNormal3d(normals[pindex1[i + 1]].x,
-                     normals[pindex1[i + 1]].z,
-                     normals[pindex1[i + 1]].y);
-          glVertex3d(points [pindex1[i + 1]].x,
-                     points [pindex1[i + 1]].z,
-                     points [pindex1[i + 1]].y);
+          glNormal3d(normals[uint(pindex1[i + 1])].x,
+                     normals[uint(pindex1[i + 1])].z,
+                     normals[uint(pindex1[i + 1])].y);
+          glVertex3d(points [uint(pindex1[i + 1])].x,
+                     points [uint(pindex1[i + 1])].z,
+                     points [uint(pindex1[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i    ]].x,
-                     normals[pindex2[i    ]].z,
-                     normals[pindex2[i    ]].y);
-          glVertex3d(points [pindex2[i    ]].x,
-                     points [pindex2[i    ]].z,
-                     points [pindex2[i    ]].y);
+          glNormal3d(normals[uint(pindex2[i    ])].x,
+                     normals[uint(pindex2[i    ])].z,
+                     normals[uint(pindex2[i    ])].y);
+          glVertex3d(points [uint(pindex2[i    ])].x,
+                     points [uint(pindex2[i    ])].z,
+                     points [uint(pindex2[i    ])].y);
 
-          glNormal3d(normals[pindex1[i    ]].x,
-                     normals[pindex1[i    ]].z,
-                     normals[pindex1[i    ]].y);
-          glVertex3d(points [pindex1[i    ]].x,
-                     points [pindex1[i    ]].z,
-                     points [pindex1[i    ]].y);
+          glNormal3d(normals[uint(pindex1[i    ])].x,
+                     normals[uint(pindex1[i    ])].z,
+                     normals[uint(pindex1[i    ])].y);
+          glVertex3d(points [uint(pindex1[i    ])].x,
+                     points [uint(pindex1[i    ])].z,
+                     points [uint(pindex1[i    ])].y);
 
           glEnd();
         }
       }
       else {
         for (int i = 0; i < num_patches; i++) {
-          glBegin(mode);
+          glBegin(uint(mode));
 
-          glNormal3d(normals[pindex1[i + 1]].x,
-                     normals[pindex1[i + 1]].z,
-                     normals[pindex1[i + 1]].y);
-          glVertex3d(points [pindex1[i + 1]].x,
-                     points [pindex1[i + 1]].z,
-                     points [pindex1[i + 1]].y);
+          glNormal3d(normals[uint(pindex1[i + 1])].x,
+                     normals[uint(pindex1[i + 1])].z,
+                     normals[uint(pindex1[i + 1])].y);
+          glVertex3d(points [uint(pindex1[i + 1])].x,
+                     points [uint(pindex1[i + 1])].z,
+                     points [uint(pindex1[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i + 1]].x,
-                     normals[pindex2[i + 1]].z,
-                     normals[pindex2[i + 1]].y);
-          glVertex3d(points [pindex2[i + 1]].x,
-                     points [pindex2[i + 1]].z,
-                     points [pindex2[i + 1]].y);
+          glNormal3d(normals[uint(pindex2[i + 1])].x,
+                     normals[uint(pindex2[i + 1])].z,
+                     normals[uint(pindex2[i + 1])].y);
+          glVertex3d(points [uint(pindex2[i + 1])].x,
+                     points [uint(pindex2[i + 1])].z,
+                     points [uint(pindex2[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i    ]].x,
-                     normals[pindex2[i    ]].z,
-                     normals[pindex2[i    ]].y);
-          glVertex3d(points [pindex2[i    ]].x,
-                     points [pindex2[i    ]].z,
-                     points [pindex2[i    ]].y);
+          glNormal3d(normals[uint(pindex2[i    ])].x,
+                     normals[uint(pindex2[i    ])].z,
+                     normals[uint(pindex2[i    ])].y);
+          glVertex3d(points [uint(pindex2[i    ])].x,
+                     points [uint(pindex2[i    ])].z,
+                     points [uint(pindex2[i    ])].y);
 
-          glNormal3d(normals[pindex1[i    ]].x,
-                     normals[pindex1[i    ]].z,
-                     normals[pindex1[i    ]].y);
-          glVertex3d(points [pindex1[i    ]].x,
-                     points [pindex1[i    ]].z,
-                     points [pindex1[i    ]].y);
+          glNormal3d(normals[uint(pindex1[i    ])].x,
+                     normals[uint(pindex1[i    ])].z,
+                     normals[uint(pindex1[i    ])].y);
+          glVertex3d(points [uint(pindex1[i    ])].x,
+                     points [uint(pindex1[i    ])].z,
+                     points [uint(pindex1[i    ])].y);
 
           glEnd();
         }
@@ -1224,28 +1228,28 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
     else {
       if (pindex2[0] != pindex2[1]) {
         for (int i = 0; i < num_patches; i++) {
-          glBegin(mode);
+          glBegin(uint(mode));
 
-          glNormal3d(normals[pindex2[i + 1]].x,
-                     normals[pindex2[i + 1]].z,
-                     normals[pindex2[i + 1]].y);
-          glVertex3d(points [pindex2[i + 1]].x,
-                     points [pindex2[i + 1]].z,
-                     points [pindex2[i + 1]].y);
+          glNormal3d(normals[uint(pindex2[i + 1])].x,
+                     normals[uint(pindex2[i + 1])].z,
+                     normals[uint(pindex2[i + 1])].y);
+          glVertex3d(points [uint(pindex2[i + 1])].x,
+                     points [uint(pindex2[i + 1])].z,
+                     points [uint(pindex2[i + 1])].y);
 
-          glNormal3d(normals[pindex2[i    ]].x,
-                     normals[pindex2[i    ]].z,
-                     normals[pindex2[i    ]].y);
-          glVertex3d(points [pindex2[i    ]].x,
-                     points [pindex2[i    ]].z,
-                     points [pindex2[i    ]].y);
+          glNormal3d(normals[uint(pindex2[i    ])].x,
+                     normals[uint(pindex2[i    ])].z,
+                     normals[uint(pindex2[i    ])].y);
+          glVertex3d(points [uint(pindex2[i    ])].x,
+                     points [uint(pindex2[i    ])].z,
+                     points [uint(pindex2[i    ])].y);
 
-          glNormal3d(normals[pindex1[i    ]].x,
-                     normals[pindex1[i    ]].z,
-                     normals[pindex1[i    ]].y);
-          glVertex3d(points [pindex1[i    ]].x,
-                     points [pindex1[i    ]].z,
-                     points [pindex1[i    ]].y);
+          glNormal3d(normals[uint(pindex1[i    ])].x,
+                     normals[uint(pindex1[i    ])].z,
+                     normals[uint(pindex1[i    ])].y);
+          glVertex3d(points [uint(pindex1[i    ])].x,
+                     points [uint(pindex1[i    ])].z,
+                     points [uint(pindex1[i    ])].y);
 
           glEnd();
         }
@@ -1264,21 +1268,21 @@ glutAddBodyRevY(int mode, double *x, double *y, int num_xy, int num_patches)
 void
 glutSphere(uint mode, GLdouble radius, GLint slices, GLint stacks)
 {
-  std::vector<double> x; x.resize(stacks);
-  std::vector<double> y; y.resize(stacks);
+  std::vector<double> x; x.resize(uint(stacks));
+  std::vector<double> y; y.resize(uint(stacks));
 
   double a = -M_PI*0.5;
 
   double da = M_PI/(stacks - 1);
 
-  for (int i = 0; i < stacks; ++i) {
+  for (uint i = 0; i < uint(stacks); ++i) {
     x[i] = radius*cos(a);
     y[i] = radius*sin(a);
 
     a += da;
   }
 
-  glutAddBodyRevX(mode, &x[0], &y[0], stacks, slices);
+  glutAddBodyRevX(int(mode), &x[0], &y[0], stacks, slices);
 }
 
 void
@@ -1298,21 +1302,21 @@ glutWireSphere(GLdouble radius, GLint slices, GLint stacks)
 void
 glutCone(uint mode, GLdouble base, GLdouble height, GLint slices, GLint stacks)
 {
-  std::vector<double> x; x.resize(stacks);
-  std::vector<double> y; x.resize(stacks);
+  std::vector<double> x; x.resize(uint(stacks));
+  std::vector<double> y; x.resize(uint(stacks));
 
-  x[0         ] = base; y[0         ] = 0;
-  x[stacks - 1] = 0   ; y[stacks - 1] = height;
+  x[0               ] = base; y[0               ] = 0;
+  x[uint(stacks - 1)] = 0   ; y[uint(stacks - 1)] = height;
 
-  double dx = stacks > 2 ? (x[stacks - 1] - x[0])/(stacks - 1) : 0;
-  double dy = stacks > 2 ? (y[stacks - 1] - y[0])/(stacks - 1) : 0;
+  double dx = (stacks > 2 ? (x[uint(stacks - 1)] - x[0])/(stacks - 1) : 0.0);
+  double dy = (stacks > 2 ? (y[uint(stacks - 1)] - y[0])/(stacks - 1) : 0.0);
 
-  for (int i = 1; i < stacks - 1; ++i) {
+  for (uint i = 1; i < uint(stacks - 1); ++i) {
     x[i] = x[i - 1] + dx;
     y[i] = y[i - 1] + dy;
   }
 
-  glutAddBodyRevX(mode, &x[0], &y[0], stacks, slices);
+  glutAddBodyRevX(int(mode), &x[0], &y[0], stacks, slices);
 }
 
 void
@@ -1477,13 +1481,13 @@ glutTorus(GLdouble r, GLdouble R, GLint nsides, GLint rings, GLenum type)
   GLdouble p0[3], p1[3], p2[3], p3[3];
   GLdouble n0[3], n1[3], n2[3], n3[3];
 
-  for (int i = 0; i < rings; i++) {
-    GLdouble theta  = (GLdouble)  i     *2.0*M_PI/rings;
-    GLdouble theta1 = (GLdouble) (i + 1)*2.0*M_PI/rings;
+  for (uint i = 0; i < uint(rings); i++) {
+    GLdouble theta  = GLdouble( i     *2.0*M_PI/rings);
+    GLdouble theta1 = GLdouble((i + 1)*2.0*M_PI/rings);
 
-    for (int j = 0; j < nsides; j++) {
-      GLdouble phi  = (GLdouble)  j     *2.0*M_PI/nsides;
-      GLdouble phi1 = (GLdouble) (j + 1)*2.0*M_PI/nsides;
+    for (uint j = 0; j < uint(nsides); j++) {
+      GLdouble phi  = GLdouble( j     *2.0*M_PI/nsides);
+      GLdouble phi1 = GLdouble((j + 1)*2.0*M_PI/nsides);
 
       p0[0] =  cos(theta )*(R + r*cos(phi));
       p0[1] = -sin(theta )*(R + r*cos(phi));
@@ -1731,133 +1735,133 @@ teapot_patchdata[][16] = {
 
 static float
 teapot_cpdata[][3] = {
-  { 0.2   ,  0     , 2.7},
-  { 0.2   , -0.112 , 2.7},
-  { 0.112 , -0.2   , 2.7},
-  { 0     , -0.2   , 2.7},
-  { 1.3375,  0     , 2.53125},
-  { 1.3375, -0.749 , 2.53125},
-  { 0.749 , -1.3375, 2.53125},
-  { 0     , -1.3375, 2.53125},
-  { 1.4375,  0     , 2.53125},
-  { 1.4375, -0.805 , 2.53125},
-  { 0.805 , -1.4375, 2.53125},
-  { 0     , -1.4375, 2.53125},
-  { 1.5   ,  0     , 2.4},
-  { 1.5   , -0.84  , 2.4},
-  { 0.84  , -1.5   , 2.4},
-  { 0     , -1.5   , 2.4},
-  { 1.75  ,  0     , 1.875},
-  { 1.75  , -0.98  , 1.875},
-  { 0.98  , -1.75  , 1.875},
-  { 0     , -1.75  , 1.875},
-  { 2     ,  0     , 1.35},
-  { 2     , -1.12  , 1.35},
-  { 1.12  , -2     , 1.35},
-  { 0     , -2     , 1.35},
-  { 2     ,  0     , 0.9},
-  { 2     , -1.12  , 0.9},
-  { 1.12  , -2     , 0.9},
-  { 0     , -2     , 0.9},
-  {-2     ,  0     , 0.9},
-  { 2     ,  0     , 0.45},
-  { 2     , -1.12  , 0.45},
-  { 1.12  , -2     , 0.45},
-  { 0     , -2     , 0.45},
-  { 1.5   ,  0     , 0.225},
-  { 1.5   , -0.84  , 0.225},
-  { 0.84  , -1.5   , 0.225},
-  { 0     , -1.5   , 0.225},
-  { 1.5   ,  0     , 0.15},
-  { 1.5   , -0.84  , 0.15},
-  { 0.84  , -1.5   , 0.15},
-  { 0     , -1.5   , 0.15},
-  {-1.6   ,  0     , 2.025},
-  {-1.6   , -0.3   , 2.025},
-  {-1.5   , -0.3   , 2.25},
-  {-1.5   ,  0     , 2.25},
-  {-2.3   ,  0     , 2.025},
-  {-2.3   , -0.3   , 2.025},
-  {-2.5   , -0.3   , 2.25},
-  {-2.5   ,  0     , 2.25},
-  {-2.7   ,  0     , 2.025},
-  {-2.7   , -0.3   , 2.025},
-  {-3     , -0.3   , 2.25},
-  {-3     ,  0     , 2.25},
-  {-2.7   ,  0     , 1.8},
-  {-2.7   , -0.3   , 1.8},
-  {-3     , -0.3   , 1.8},
-  {-3     ,  0     , 1.8},
-  {-2.7   ,  0     , 1.575},
-  {-2.7   , -0.3   , 1.575},
-  {-3     , -0.3   , 1.35},
-  {-3     ,  0     , 1.35},
-  {-2.5   ,  0     , 1.125},
-  {-2.5   , -0.3   , 1.125},
-  {-2.65  , -0.3   , 0.9375},
-  {-2.65  ,  0     , 0.9375},
-  {-2     , -0.3   , 0.9},
-  {-1.9   , -0.3   , 0.6},
-  {-1.9   ,  0     , 0.6},
-  { 1.7   ,  0     , 1.425},
-  { 1.7   , -0.66  , 1.425},
-  { 1.7   , -0.66  , 0.6},
-  { 1.7   ,  0     , 0.6},
-  { 2.6   ,  0     , 1.425},
-  { 2.6   , -0.66  , 1.425},
-  { 3.1   , -0.66  , 0.825},
-  { 3.1   ,  0     , 0.825},
-  { 2.3   ,  0     , 2.1},
-  { 2.3   , -0.25  , 2.1},
-  { 2.4   , -0.25  , 2.025},
-  { 2.4   ,  0     , 2.025},
-  { 2.7   ,  0     , 2.4},
-  { 2.7   , -0.25  , 2.4},
-  { 3.3   , -0.25  , 2.4},
-  { 3.3   ,  0     , 2.4},
-  { 2.8   ,  0     , 2.475},
-  { 2.8   , -0.25  , 2.475},
-  { 3.525 , -0.25  , 2.49375},
-  { 3.525 ,  0     , 2.49375},
-  { 2.9   ,  0     , 2.475  },
-  { 2.9   , -0.15  , 2.475  },
-  { 3.45  , -0.15  , 2.5125 },
-  { 3.45  ,  0     , 2.5125 },
-  { 2.8   ,  0     , 2.4    },
-  { 2.8   , -0.15  , 2.4    },
-  { 3.2   , -0.15  , 2.4    },
-  { 3.2   ,  0     , 2.4    },
-  { 0     ,  0     , 3.15   },
-  { 0.8   ,  0     , 3.15   },
-  { 0.8   , -0.45  , 3.15   },
-  { 0.45  , -0.8   , 3.15   },
-  { 0     , -0.8   , 3.15   },
-  { 0     ,  0     , 2.85   },
-  { 1.4   ,  0     , 2.4    },
-  { 1.4   , -0.784 , 2.4    },
-  { 0.784 , -1.4   , 2.4    },
-  { 0     , -1.4   , 2.4    },
-  { 0.4   ,  0     , 2.55   },
-  { 0.4   , -0.224 , 2.55   },
-  { 0.224 , -0.4   , 2.55   },
-  { 0     , -0.4   , 2.55   },
-  { 1.3   ,  0     , 2.55   },
-  { 1.3   , -0.728 , 2.55   },
-  { 0.728 , -1.3   , 2.55   },
-  { 0     , -1.3   , 2.55   },
-  { 1.3   ,  0     , 2.4    },
-  { 1.3   , -0.728 , 2.4    },
-  { 0.728 , -1.3   , 2.4    },
-  { 0     , -1.3   , 2.4    },
-  { 0     ,  0     , 0      },
-  { 1.425 , -0.798 , 0      },
-  { 1.5   ,  0     , 0.075  },
-  { 1.425 ,  0     , 0      },
-  { 0.798 , -1.425 , 0      },
-  { 0     , -1.5   , 0.075  },
-  { 0     , -1.425 , 0      },
-  { 1.5   , -0.84  , 0.075  },
-  { 0.84  , -1.5   , 0.075  }
+  { 0.2000f,  0.0000f, 2.70000f},
+  { 0.2000f, -0.1120f, 2.70000f},
+  { 0.1120f, -0.2000f, 2.70000f},
+  { 0.0000f, -0.2000f, 2.70000f},
+  { 1.3375f,  0.0000f, 2.53125f},
+  { 1.3375f, -0.7490f, 2.53125f},
+  { 0.7490f, -1.3375f, 2.53125f},
+  { 0.0000f, -1.3375f, 2.53125f},
+  { 1.4375f,  0.0000f, 2.53125f},
+  { 1.4375f, -0.8050f, 2.53125f},
+  { 0.8050f, -1.4375f, 2.53125f},
+  { 0.0000f, -1.4375f, 2.53125f},
+  { 1.5000f,  0.0000f, 2.40000f},
+  { 1.5000f, -0.8400f, 2.40000f},
+  { 0.8400f, -1.5000f, 2.40000f},
+  { 0.0000f, -1.5000f, 2.40000f},
+  { 1.7500f,  0.0000f, 1.87500f},
+  { 1.7500f, -0.9800f, 1.87500f},
+  { 0.9800f, -1.7500f, 1.87500f},
+  { 0.0000f, -1.7500f, 1.87500f},
+  { 2.0000f,  0.0000f, 1.35000f},
+  { 2.0000f, -1.1200f, 1.35000f},
+  { 1.1200f, -2.0000f, 1.35000f},
+  { 0.0000f, -2.0000f, 1.35000f},
+  { 2.0000f,  0.0000f, 0.90000f},
+  { 2.0000f, -1.1200f, 0.90000f},
+  { 1.1200f, -2.0000f, 0.90000f},
+  { 0.0000f, -2.0000f, 0.90000f},
+  {-2.0000f,  0.0000f, 0.90000f},
+  { 2.0000f,  0.0000f, 0.45000f},
+  { 2.0000f, -1.1200f, 0.45000f},
+  { 1.1200f, -2.0000f, 0.45000f},
+  { 0.0000f, -2.0000f, 0.45000f},
+  { 1.5000f,  0.0000f, 0.22500f},
+  { 1.5000f, -0.8400f, 0.22500f},
+  { 0.8400f, -1.5000f, 0.22500f},
+  { 0.0000f, -1.5000f, 0.22500f},
+  { 1.5000f,  0.0000f, 0.15000f},
+  { 1.5000f, -0.8400f, 0.15000f},
+  { 0.8400f, -1.5000f, 0.15000f},
+  { 0.0000f, -1.5000f, 0.15000f},
+  {-1.6000f,  0.0000f, 2.02500f},
+  {-1.6000f, -0.3000f, 2.02500f},
+  {-1.5000f, -0.3000f, 2.25000f},
+  {-1.5000f,  0.0000f, 2.25000f},
+  {-2.3000f,  0.0000f, 2.02500f},
+  {-2.3000f, -0.3000f, 2.02500f},
+  {-2.5000f, -0.3000f, 2.25000f},
+  {-2.5000f,  0.0000f, 2.25000f},
+  {-2.7000f,  0.0000f, 2.02500f},
+  {-2.7000f, -0.3000f, 2.02500f},
+  {-3.0000f, -0.3000f, 2.25000f},
+  {-3.0000f,  0.0000f, 2.25000f},
+  {-2.7000f,  0.0000f, 1.80000f},
+  {-2.7000f, -0.3000f, 1.80000f},
+  {-3.0000f, -0.3000f, 1.80000f},
+  {-3.0000f,  0.0000f, 1.80000f},
+  {-2.7000f,  0.0000f, 1.57500f},
+  {-2.7000f, -0.3000f, 1.57500f},
+  {-3.0000f, -0.3000f, 1.35000f},
+  {-3.0000f,  0.0000f, 1.35000f},
+  {-2.5000f,  0.0000f, 1.12500f},
+  {-2.5000f, -0.3000f, 1.12500f},
+  {-2.6500f, -0.3000f, 0.93750f},
+  {-2.6500f,  0.0000f, 0.93750f},
+  {-2.0000f, -0.3000f, 0.90000f},
+  {-1.9000f, -0.3000f, 0.60000f},
+  {-1.9000f,  0.0000f, 0.60000f},
+  { 1.7000f,  0.0000f, 1.42500f},
+  { 1.7000f, -0.6600f, 1.42500f},
+  { 1.7000f, -0.6600f, 0.60000f},
+  { 1.7000f,  0.0000f, 0.60000f},
+  { 2.6000f,  0.0000f, 1.42500f},
+  { 2.6000f, -0.6600f, 1.42500f},
+  { 3.1000f, -0.6600f, 0.82500f},
+  { 3.1000f,  0.0000f, 0.82500f},
+  { 2.3000f,  0.0000f, 2.10000f},
+  { 2.3000f, -0.2500f, 2.10000f},
+  { 2.4000f, -0.2500f, 2.02500f},
+  { 2.4000f,  0.0000f, 2.02500f},
+  { 2.7000f,  0.0000f, 2.40000f},
+  { 2.7000f, -0.2500f, 2.40000f},
+  { 3.3000f, -0.2500f, 2.40000f},
+  { 3.3000f,  0.0000f, 2.40000f},
+  { 2.8000f,  0.0000f, 2.47500f},
+  { 2.8000f, -0.2500f, 2.47500f},
+  { 3.5250f, -0.2500f, 2.49375f},
+  { 3.5250f,  0.0000f, 2.49375f},
+  { 2.9000f,  0.0000f, 2.47500f},
+  { 2.9000f, -0.1500f, 2.47500f},
+  { 3.4500f, -0.1500f, 2.51250f},
+  { 3.4500f,  0.0000f, 2.51250f},
+  { 2.8000f,  0.0000f, 2.40000f},
+  { 2.8000f, -0.1500f, 2.40000f},
+  { 3.2000f, -0.1500f, 2.40000f},
+  { 3.2000f,  0.0000f, 2.40000f},
+  { 0.0000f,  0.0000f, 3.15000f},
+  { 0.8000f,  0.0000f, 3.15000f},
+  { 0.8000f, -0.4500f, 3.15000f},
+  { 0.4500f, -0.8000f, 3.15000f},
+  { 0.0000f, -0.8000f, 3.15000f},
+  { 0.0000f,  0.0000f, 2.85000f},
+  { 1.4000f,  0.0000f, 2.40000f},
+  { 1.4000f, -0.7840f, 2.40000f},
+  { 0.7840f, -1.4000f, 2.40000f},
+  { 0.0000f, -1.4000f, 2.40000f},
+  { 0.4000f,  0.0000f, 2.55000f},
+  { 0.4000f, -0.2240f, 2.55000f},
+  { 0.2240f, -0.4000f, 2.55000f},
+  { 0.0000f, -0.4000f, 2.55000f},
+  { 1.3000f,  0.0000f, 2.55000f},
+  { 1.3000f, -0.7280f, 2.55000f},
+  { 0.7280f, -1.3000f, 2.55000f},
+  { 0.0000f, -1.3000f, 2.55000f},
+  { 1.3000f,  0.0000f, 2.40000f},
+  { 1.3000f, -0.7280f, 2.40000f},
+  { 0.7280f, -1.3000f, 2.40000f},
+  { 0.0000f, -1.3000f, 2.40000f},
+  { 0.0000f,  0.0000f, 0.00000f},
+  { 1.4250f, -0.7980f, 0.00000f},
+  { 1.5000f,  0.0000f, 0.07500f},
+  { 1.4250f,  0.0000f, 0.00000f},
+  { 0.7980f, -1.4250f, 0.00000f},
+  { 0.0000f, -1.5000f, 0.07500f},
+  { 0.0000f, -1.4250f, 0.00000f},
+  { 1.5000f, -0.8400f, 0.07500f},
+  { 0.8400f, -1.5000f, 0.07500f}
 };
 
 static float
@@ -1883,8 +1887,10 @@ glutTeapot(GLint grid, GLdouble scale, GLenum type)
 
   glPushMatrix();
 
+  auto scalef = float(scale);
+
   glRotatef   (270.0, 1.0, 0.0, 0.0);
-  glScalef    (0.5*scale, 0.5*scale, 0.5*scale);
+  glScalef    (0.5f*scalef, 0.5f*scalef, 0.5f*scalef);
   glTranslatef(0.0, 0.0, -1.5);
 
   for (i = 0; i < 10; i++) {
@@ -1895,21 +1901,21 @@ glutTeapot(GLint grid, GLdouble scale, GLenum type)
           q[j][k][l] = teapot_cpdata[teapot_patchdata[i][j*4 + (3 - k)]][l];
 
           if (l == 1)
-            q[j][k][l] *= -1.0;
+            q[j][k][l] *= -1.0f;
 
           if (i < 6) {
             r[j][k][l] = teapot_cpdata[teapot_patchdata[i][j*4 + (3 - k)]][l];
 
             if (l == 0)
-              r[j][k][l] *= -1.0;
+              r[j][k][l] *= -1.0f;
 
             s[j][k][l] = teapot_cpdata[teapot_patchdata[i][j*4 +      k ]][l];
 
             if (l == 0)
-              s[j][k][l] *= -1.0;
+              s[j][k][l] *= -1.0f;
 
             if (l == 1)
-              s[j][k][l] *= -1.0;
+              s[j][k][l] *= -1.0f;
           }
         }
       }

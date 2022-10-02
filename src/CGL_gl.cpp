@@ -10,27 +10,27 @@
 #include <bool_ops.h>
 #include <climits>
 
-#define GL_VERTEX_ARRAY_DATA(t,i) \
+#define GL_VERTEX_ARRAY_DATA(t, i) \
   ((gl_vertex_array_stride == 0) ? \
-   ((t *)(gl_vertex_array_pointer + ((i)*gl_vertex_array_size*sizeof(t)))) : \
-   ((t *)(gl_vertex_array_pointer + (i)*gl_vertex_array_stride)))
+   (reinterpret_cast<t *>(gl_vertex_array_pointer + (uint(i*gl_vertex_array_size)*sizeof(t)))) : \
+   (reinterpret_cast<t *>(gl_vertex_array_pointer +  uint(i*gl_vertex_array_stride))))
 
-#define GL_COLOR_ARRAY_DATA(t,i) \
+#define GL_COLOR_ARRAY_DATA(t, i) \
   ((gl_color_array_stride == 0) ? \
-   ((t *)(gl_color_array_pointer + ((i)*gl_color_array_size*sizeof(t)))) : \
-   ((t *)(gl_color_array_pointer + (i)*gl_color_array_stride)))
+   (reinterpret_cast<t *>(gl_color_array_pointer + (uint(i*gl_color_array_size)*sizeof(t)))) : \
+   (reinterpret_cast<t *>(gl_color_array_pointer + uint(i*gl_color_array_stride))))
 
 static bool    gl_vertex_array_flag    = false;
 static int     gl_vertex_array_size    = 4;
 static GLenum  gl_vertex_array_type    = GL_FLOAT;
 static int     gl_vertex_array_stride  = 0;
-static char   *gl_vertex_array_pointer = NULL;
+static char   *gl_vertex_array_pointer = nullptr;
 
 static bool    gl_color_array_flag    = false;
 static int     gl_color_array_size    = 4;
 static GLenum  gl_color_array_type    = GL_FLOAT;
 static int     gl_color_array_stride  = 0;
-static char   *gl_color_array_pointer = NULL;
+static char   *gl_color_array_pointer = nullptr;
 
 static bool    gl_index_array_flag         = false;
 static bool    gl_normal_array_flag        = false;
@@ -63,7 +63,7 @@ gli_SetError(int error)
 {
   std::cerr << "GL_ERROR " << error << std::endl;
 
-  CGLMgrInst->setErrorNum(error);
+  CGLMgrInst->setErrorNum(uint(error));
 }
 
 static void
@@ -83,11 +83,11 @@ gli_ArrayElementVertex(GLint i)
     uchar *data = GL_VERTEX_ARRAY_DATA(uchar, i);
 
     if      (gl_vertex_array_size == 2)
-      gli_Vertex2cv((char *) data);
+      gli_Vertex2cv(reinterpret_cast<char *>(data));
     else if (gl_vertex_array_size == 3)
-      gli_Vertex3cv((char *) data);
+      gli_Vertex3cv(reinterpret_cast<char *>(data));
     else if (gl_vertex_array_size == 4)
-      gli_Vertex4cv((char *) data);
+      gli_Vertex4cv(reinterpret_cast<char *>(data));
   }
   else if (gl_vertex_array_type == GL_SHORT) {
     GLshort *data = GL_VERTEX_ARRAY_DATA(GLshort, i);
@@ -103,11 +103,11 @@ gli_ArrayElementVertex(GLint i)
     GLushort *data = GL_VERTEX_ARRAY_DATA(GLushort, i);
 
     if      (gl_vertex_array_size == 2)
-      glVertex2sv((GLshort *) data);
+      glVertex2sv(reinterpret_cast<GLshort *>(data));
     else if (gl_vertex_array_size == 3)
-      glVertex3sv((GLshort *) data);
+      glVertex3sv(reinterpret_cast<GLshort *>(data));
     else if (gl_vertex_array_size == 4)
-      glVertex4sv((GLshort *) data);
+      glVertex4sv(reinterpret_cast<GLshort *>(data));
   }
   else if (gl_vertex_array_type == GL_INT) {
     GLint *data = GL_VERTEX_ARRAY_DATA(GLint, i);
@@ -123,11 +123,11 @@ gli_ArrayElementVertex(GLint i)
     GLuint *data = GL_VERTEX_ARRAY_DATA(GLuint, i);
 
     if      (gl_vertex_array_size == 2)
-      glVertex2iv((GLint *) data);
+      glVertex2iv(reinterpret_cast<GLint *>(data));
     else if (gl_vertex_array_size == 3)
-      glVertex3iv((GLint *) data);
+      glVertex3iv(reinterpret_cast<GLint *>(data));
     else if (gl_vertex_array_size == 4)
-      glVertex4iv((GLint *) data);
+      glVertex4iv(reinterpret_cast<GLint *>(data));
   }
   else if (gl_vertex_array_type == GL_FLOAT) {
     GLfloat *data = GL_VERTEX_ARRAY_DATA(GLfloat, i);
@@ -166,9 +166,9 @@ gli_ArrayElementColor(GLint i)
     uchar *data = GL_COLOR_ARRAY_DATA(uchar, i);
 
     if      (gl_color_array_size == 3)
-      gli_Color3cv((char *) data);
+      gli_Color3cv(reinterpret_cast<char *>(data));
     else if (gl_color_array_size == 4)
-      gli_Color4cv((char *) data);
+      gli_Color4cv(reinterpret_cast<char *>(data));
   }
   else if (gl_color_array_type == GL_SHORT) {
     GLshort *data = GL_COLOR_ARRAY_DATA(GLshort, i);
@@ -182,9 +182,9 @@ gli_ArrayElementColor(GLint i)
     GLushort *data = GL_COLOR_ARRAY_DATA(GLushort, i);
 
     if      (gl_color_array_size == 3)
-      glColor3sv((GLshort *) data);
+      glColor3sv(reinterpret_cast<GLshort *>(data));
     else if (gl_color_array_size == 4)
-      glColor4sv((GLshort *) data);
+      glColor4sv(reinterpret_cast<GLshort *>(data));
   }
   else if (gl_color_array_type == GL_INT) {
     GLint *data = GL_COLOR_ARRAY_DATA(GLint, i);
@@ -198,9 +198,9 @@ gli_ArrayElementColor(GLint i)
     GLuint *data = GL_COLOR_ARRAY_DATA(GLuint, i);
 
     if      (gl_color_array_size == 3)
-      glColor3iv((GLint *) data);
+      glColor3iv(reinterpret_cast<GLint *>(data));
     else if (gl_color_array_size == 4)
-      glColor4iv((GLint *) data);
+      glColor4iv(reinterpret_cast<GLint *>(data));
   }
   else if (gl_color_array_type == GL_FLOAT) {
     GLfloat *data = GL_COLOR_ARRAY_DATA(GLfloat, i);
@@ -623,7 +623,7 @@ glArrayElement(GLint i)
 void
 glBegin(GLenum mode)
 {
-  static int all_modes =
+  static uint all_modes =
     GL_POINTS | GL_LINES | GL_LINE_STRIP | GL_LINE_LOOP |
     GL_TRIANGLES | GL_TRIANGLE_STRIP | GL_TRIANGLE_FAN |
     GL_QUADS | GL_QUAD_STRIP | GL_POLYGON;
@@ -631,7 +631,7 @@ glBegin(GLenum mode)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if (! gl->inDisplayList()) {
-    if ((mode & ~all_modes) != 0) {
+    if ((uint(mode) & ~all_modes) != 0) {
       gli_SetError(GL_INVALID_ENUM);
       return;
     }
@@ -642,7 +642,7 @@ glBegin(GLenum mode)
     }
   }
 
-  gl->beginBlock(mode);
+  gl->beginBlock(int(mode));
 }
 
 void
@@ -666,7 +666,7 @@ glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  gl->drawBitmap(width, height, xorig, yorig, xmove, ymove, bitmap);
+  gl->drawBitmap(uint(width), uint(height), xorig, yorig, xmove, ymove, bitmap);
 }
 
 void
@@ -816,7 +816,7 @@ glCallList(GLuint list)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  gl->executeDisplayList(list + gl->getListBase());
+  gl->executeDisplayList(list + uint(gl->getListBase()));
 }
 
 void
@@ -824,31 +824,31 @@ glCallLists(GLsizei n, GLenum type, const GLvoid *lists)
 {
   if      (type == GL_BYTE) {
     for (int i = 0; i < n; ++i)
-      glCallList(((GLbyte *) lists)[i]);
+      glCallList(GLuint(reinterpret_cast<GLbyte *>(const_cast<void *>(lists))[i]));
   }
   else if (type == GL_UNSIGNED_BYTE) {
     for (int i = 0; i < n; ++i)
-      glCallList(((GLubyte *) lists)[i]);
+      glCallList(GLuint(reinterpret_cast<GLubyte *>(const_cast<void *>(lists))[i]));
   }
   else if (type == GL_SHORT) {
     for (int i = 0; i < n; ++i)
-      glCallList(((GLshort *) lists)[i]);
+      glCallList(GLuint(reinterpret_cast<GLshort *>(const_cast<void *>(lists))[i]));
   }
   else if (type == GL_UNSIGNED_SHORT) {
     for (int i = 0; i < n; ++i)
-      glCallList(((GLushort *) lists)[i]);
+      glCallList(GLuint(reinterpret_cast<GLushort *>(const_cast<void *>(lists))[i]));
   }
   else if (type == GL_INT) {
     for (int i = 0; i < n; ++i)
-      glCallList(((GLint *) lists)[i]);
+      glCallList(GLuint(reinterpret_cast<GLint *>(const_cast<void *>(lists))[i]));
   }
   else if (type == GL_UNSIGNED_INT) {
     for (int i = 0; i < n; ++i)
-      glCallList(((GLuint *) lists)[i]);
+      glCallList(GLuint(reinterpret_cast<GLuint *>(const_cast<void *>(lists))[i]));
   }
   else if (type == GL_FLOAT) {
     for (int i = 0; i < n; ++i)
-      glCallList(int(((GLfloat *) lists)[i]));
+      glCallList(GLuint(reinterpret_cast<GLfloat *>(const_cast<void *>(lists))[i]));
   }
   else
     CGLMgrInst->unimplemented(CStrUtil::strprintf("glCallLists %d %d", n, type));
@@ -960,7 +960,7 @@ glClearStencil(GLint s)
   }
 
   // TODO: clamp
-  gl->getColorBuffer().setStencilClearValue(s);
+  gl->getColorBuffer().setStencilClearValue(uint(s));
 }
 
 void
@@ -1076,7 +1076,7 @@ glColor4d(GLdouble r, GLdouble g, GLdouble b, GLdouble a)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if (gl->getColorMaterial().getEnabled()) {
-    std::vector<GLfloat> params = { (GLfloat) r, (GLfloat) g, (GLfloat) b, (GLfloat) a };
+    std::vector<GLfloat> params = { GLfloat(r), GLfloat(g), GLfloat(b), GLfloat(a) };
 
     glMaterialfv(gl->getColorMaterial().getFace(),
                  gl->getColorMaterial().getMode(),
@@ -1176,13 +1176,12 @@ glColorMaterial(GLenum face, GLenum mode)
 }
 
 void
-glColorPointer(GLint size, GLenum type, GLsizei stride,
-               const GLvoid *pointer)
+glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
 {
   gl_color_array_size    = size;
   gl_color_array_type    = type;
   gl_color_array_stride  = stride;
-  gl_color_array_pointer = (char *) pointer;
+  gl_color_array_pointer = static_cast<char *>(const_cast<void *>(pointer));
 }
 
 void
@@ -1191,7 +1190,7 @@ glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum buffer)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if (buffer == GL_COLOR)
-    gl->copyColorImage(x, y, width, height, 4);
+    gl->copyColorImage(x, y, uint(width), uint(height), 4);
   else
     CGLMgrInst->unimplemented(CStrUtil::strprintf("glCopyPixels"));
 }
@@ -1205,7 +1204,7 @@ glColorTable(GLenum /*target*/, GLenum internalFormat, GLsizei width,
   CGLColorTable color_table;
 
   color_table.setType(internalFormat);
-  color_table.setSize(width);
+  color_table.setSize(uint(width));
 
   if (format == GL_RGB) {
     if (type == GL_UNSIGNED_BYTE) {
@@ -1213,7 +1212,7 @@ glColorTable(GLenum /*target*/, GLenum internalFormat, GLsizei width,
 
       CRGBA rgba;
 
-      uchar *p = (uchar *) data;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(data));
 
       for (int i = 0; i < width; ++i, p += 3) {
         rgba = CRGBA(p[0]*f, p[1]*f, p[2]*f);
@@ -1223,7 +1222,7 @@ glColorTable(GLenum /*target*/, GLenum internalFormat, GLsizei width,
         rgba.clamp();
 
         if (internalFormat == GL_RGB)
-          color_table.setValue(i, rgba);
+          color_table.setValue(uint(i), rgba);
         else
           CGLMgrInst->unimplemented(CStrUtil::strprintf("glColorTable"));
       }
@@ -1247,16 +1246,16 @@ glConvolutionFilter2D(GLenum /*target*/, GLenum internalFormat, GLsizei width,
   CGLConvolutionFilter2D filter;
 
   filter.setType(internalFormat);
-  filter.setSize(width, height);
+  filter.setSize(uint(width), uint(height));
 
   if (format == GL_LUMINANCE) {
     if (type == GL_FLOAT) {
-      float *p = (float *) image;
+      float *p = static_cast<float *>(const_cast<void *>(image));
 
       for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x, ++p) {
           if (internalFormat == GL_LUMINANCE)
-            filter.setValue(x, y, CRGBA(*p,*p,*p,1));
+            filter.setValue(uint(x), uint(y), CRGBA(*p, *p, *p, 1));
           else
             CGLMgrInst->unimplemented("glConvolutionFilter2D");
         }
@@ -1311,7 +1310,7 @@ glDeleteLists(GLuint list, GLsizei range)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   for (int i = 0; i < range; ++i)
-    gl->deleteDisplayList(list + i);
+    gl->deleteDisplayList(list + uint(i));
 }
 
 void
@@ -1515,15 +1514,15 @@ glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices)
 
   if      (type == GL_UNSIGNED_BYTE) {
     for (int i = 0; i < count; ++i)
-      glArrayElement(((GLubyte *) indices)[i]);
+      glArrayElement(int(reinterpret_cast<GLubyte *>(const_cast<void *>(indices))[i]));
   }
   else if (type == GL_UNSIGNED_SHORT) {
     for (int i = 0; i < count; ++i)
-      glArrayElement(((GLushort *) indices)[i]);
+      glArrayElement(int(reinterpret_cast<GLushort *>(const_cast<void *>(indices))[i]));
   }
   else if (type == GL_UNSIGNED_INT) {
     for (int i = 0; i < count; ++i)
-      glArrayElement(((GLuint *) indices)[i]);
+      glArrayElement(int(reinterpret_cast<GLuint *>(const_cast<void *>(indices))[i]));
   }
 
   glEnd();
@@ -1537,13 +1536,15 @@ glDrawPixels(GLsizei width, GLsizei height, GLenum format,
 
   if      (format == GL_RGB  || format == GL_BGR ) {
     if (type == GL_UNSIGNED_BYTE)
-      gl->drawRGBAImage(width, height, (uchar *) pixels, 3, format == GL_RGB);
+      gl->drawRGBAImage(uint(width), uint(height), static_cast<uchar *>(const_cast<void *>(pixels)),
+                        3, format == GL_RGB);
     else
       CGLMgrInst->unimplemented(CStrUtil::strprintf("glDrawPixels"));
   }
   else if (format == GL_RGBA || format == GL_BGRA) {
     if (type == GL_UNSIGNED_BYTE)
-      gl->drawRGBAImage(width, height, (uchar *) pixels, 4, format == GL_RGBA);
+      gl->drawRGBAImage(uint(width), uint(height), static_cast<uchar *>(const_cast<void *>(pixels)),
+                        4, format == GL_RGBA);
     else
       CGLMgrInst->unimplemented(CStrUtil::strprintf("glDrawPixels"));
   }
@@ -2047,7 +2048,7 @@ glFeedbackBuffer(GLsizei size, GLenum type, GLfloat *buffer)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  CGLFeedbackBuffer feedback(size, type, buffer);
+  CGLFeedbackBuffer feedback(size, int(type), buffer);
 
   gl->setFeedbackBuffer(feedback);
 }
@@ -2263,9 +2264,9 @@ glGenLists(GLsizei range)
   GLuint id;
 
   for (int i = 0; i < range; ++i)
-    id = gl->createDisplayList();
+    id = GLuint(gl->createDisplayList());
 
-  return id - range + 1;
+  return id - GLuint(range) + 1;
 }
 
 void
@@ -2342,19 +2343,19 @@ glGetFloatv(GLenum pname, GLfloat *params)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if      (pname == GL_LINE_WIDTH_GRANULARITY) {
-    params[0] = 0.1;
+    params[0] = 0.1f;
   }
   else if (pname == GL_LINE_WIDTH_RANGE) {
-    params[0] =  0.5;
-    params[1] = 10.0;
+    params[0] =  0.5f;
+    params[1] = 10.0f;
   }
   else if (pname == GL_CURRENT_RASTER_POSITION) {
     const CPoint3D &point = gl->getRasterPos().getPixel();
 
-    params[0] = point.x;
-    params[1] = point.y;
-    params[2] = point.z;
-    params[3] = 1.0;
+    params[0] = float(point.x);
+    params[1] = float(point.y);
+    params[2] = float(point.z);
+    params[3] = 1.0f;
   }
   else if (pname == GL_MODELVIEW_MATRIX) {
     CMatrix3DH *matrix = gl->getMatrix(GL_MODELVIEW);
@@ -2364,7 +2365,7 @@ glGetFloatv(GLenum pname, GLfloat *params)
     matrix->getValues(v, 16);
 
     for (int i = 0; i < 16; ++i)
-      params[i] = v[i];
+      params[i] = float(v[i]);
   }
   else {
     CGLMgrInst->unimplemented(CStrUtil::strprintf("glGetFloatv %d", pname));
@@ -2392,7 +2393,7 @@ glGetHistogram(GLenum /*target*/, GLboolean /*reset*/, GLenum /*format*/, GLenum
 
     double f = USHRT_MAX/m;
 
-    ushort *p = (ushort *) values;
+    ushort *p = static_cast<ushort *>(const_cast<void *>(values));
 
     for (uint i = 0; i < hw; ++i, p += 3) {
       p[0] = ushort(histogram.getValue(i).getRed  ()*f);
@@ -2414,10 +2415,10 @@ glGetIntegerv(GLenum pname, GLint *params)
 
     gl->getViewport(&x1, &y1, &x2, &y2);
 
-    params[0] = (int) x1;
-    params[1] = (int) y1;
-    params[2] = (int) (x2 - x1 + 1.0);
-    params[3] = (int) (y2 - y1 + 1.0);
+    params[0] = int(x1);
+    params[1] = int(y1);
+    params[2] = int(x2 - x1 + 1.0);
+    params[3] = int(y2 - y1 + 1.0);
   }
   else if (pname == GL_INDEX_MODE) {
     params[0] = 0;
@@ -2438,11 +2439,11 @@ glGetMinmax(GLenum /*target*/, GLboolean /*reset*/, GLenum /*format*/, GLenum ty
     const CRGBA &minv = minmax.getMin();
     const CRGBA &maxv = minmax.getMax();
 
-    double m = std::max(std::max(std::max(m, maxv.getRed()), maxv.getGreen()), maxv.getBlue());
+    double m = std::max(std::max(maxv.getRed(), maxv.getGreen()), maxv.getBlue());
 
     double f = 255/m;
 
-    uchar *p = (uchar *) values;
+    uchar *p = static_cast<uchar *>(const_cast<void *>(values));
 
     p[0] = uchar(minv.getRed  ()*f);
     p[1] = uchar(minv.getGreen()*f);
@@ -2460,14 +2461,14 @@ glGetString(GLenum name)
 {
   switch (name) {
     case GL_EXTENSIONS:
-      return (const GLubyte *) "GL_ARB_texture_cube_map";
+      return reinterpret_cast<const GLubyte *>("GL_ARB_texture_cube_map");
     case GL_RENDERER:
-      return (const GLubyte *) "CGL";
+      return reinterpret_cast<const GLubyte *>("CGL");
     case GL_VERSION:
-      return (const GLubyte *) "0.1";
+      return reinterpret_cast<const GLubyte *>("0.1");
     default:
       CGLMgrInst->unimplemented(CStrUtil::strprintf("glGetString %d", name));
-      return (const GLubyte *) "";
+      return reinterpret_cast<const GLubyte *>("");
   }
 }
 
@@ -2484,10 +2485,10 @@ glHint(GLenum target, GLenum mode)
 
   switch (target) {
     case GL_FOG_HINT:
-      gl->setFogHint(mode);
+      gl->setFogHint(int(mode));
       break;
     case GL_LINE_SMOOTH_HINT:
-      gl->setLineSmoothHint(mode);
+      gl->setLineSmoothHint(int(mode));
       break;
     default:
       CGLMgrInst->unimplemented(
@@ -2497,15 +2498,14 @@ glHint(GLenum target, GLenum mode)
 }
 
 void
-glHistogram(GLenum /*target*/, GLsizei width, GLenum internalFormat,
-            GLboolean sink)
+glHistogram(GLenum /*target*/, GLsizei width, GLenum internalFormat, GLboolean sink)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   CGLHistogram histogram = gl->getHistogram();
 
   histogram.setType (internalFormat);
-  histogram.setWidth(width);
+  histogram.setWidth(uint(width));
   histogram.setSink (sink);
 
   gl->setHistogram(histogram);
@@ -2539,7 +2539,7 @@ glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer)
   if (str == 0)
     str = gli_InterleavedArraysGetStride(format);
 
-  GLubyte *p = (GLubyte *) pointer;
+  GLubyte *p = reinterpret_cast<GLubyte *>(const_cast<void *>(pointer));
 
   glDisableClientState(GL_EDGE_FLAG_ARRAY);
   glDisableClientState(GL_INDEX_ARRAY);
@@ -2884,9 +2884,9 @@ glLightModelf(GLenum pname, GLfloat param)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if      (pname == GL_LIGHT_MODEL_LOCAL_VIEWER)
-    gl->setLightModelLocalViewer(param);
+    gl->setLightModelLocalViewer(int(param));
   else if (pname == GL_LIGHT_MODEL_TWO_SIDE)
-    gl->setLightModelTwoSide(param);
+    gl->setLightModelTwoSide(int(param));
   else
     gli_SetError(GL_INVALID_ENUM);
 }
@@ -2897,12 +2897,11 @@ glLightModelfv(GLenum pname, const GLfloat *params)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if      (pname == GL_LIGHT_MODEL_AMBIENT)
-    gl->setLightModelAmbient(
-      CRGBA(params[0], params[1], params[2], params[3]));
+    gl->setLightModelAmbient(CRGBA(params[0], params[1], params[2], params[3]));
   else if (pname == GL_LIGHT_MODEL_LOCAL_VIEWER)
-    gl->setLightModelLocalViewer(params[0]);
+    gl->setLightModelLocalViewer(int(params[0]));
   else if (pname == GL_LIGHT_MODEL_TWO_SIDE)
-    gl->setLightModelTwoSide(params[0]);
+    gl->setLightModelTwoSide(int(params[0]));
   else
     gli_SetError(GL_INVALID_ENUM);
 }
@@ -2968,7 +2967,7 @@ glListBase(GLuint base)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  gl->setListBase(base);
+  gl->setListBase(int(base));
 }
 
 void
@@ -2991,7 +2990,7 @@ glLoadMatrixf(const GLfloat *m)
 
   GLdouble d[16];
 
-  for (int i = 0; i < 16; ++i)
+  for (uint i = 0; i < 16; ++i)
     d[i] = m[i];
 
   CMatrix3DH matrix(d, 16);
@@ -3034,12 +3033,14 @@ glMap1d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
 
   std::vector<double> values;
 
+  uint i = 0;
+
   if      (target == GL_MAP1_VERTEX_4        ||
            target == GL_MAP1_COLOR_4         ||
            target == GL_MAP1_TEXTURE_COORD_4) {
-    values.resize(4*uorder);
+    values.resize(uint(4*uorder));
 
-    for (int i = 0, j = 0; i < 4*uorder; j += ustride) {
+    for (int j = 0; i < values.size(); j += ustride) {
       values[i++] = points[j + 0];
       values[i++] = points[j + 1];
       values[i++] = points[j + 2];
@@ -3049,27 +3050,27 @@ glMap1d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
   else if (target == GL_MAP1_VERTEX_3        ||
            target == GL_MAP1_NORMAL          ||
            target == GL_MAP1_TEXTURE_COORD_3) {
-    values.resize(3*uorder);
+    values.resize(uint(3*uorder));
 
-    for (int i = 0, j = 0; i < 3*uorder; j += ustride) {
+    for (int j = 0; i < values.size(); j += ustride) {
       values[i++] = points[j + 0];
       values[i++] = points[j + 1];
       values[i++] = points[j + 2];
     }
   }
   else if (target == GL_MAP1_TEXTURE_COORD_2) {
-    values.resize(2*uorder);
+    values.resize(uint(2*uorder));
 
-    for (int i = 0, j = 0; i < 2*uorder; j += ustride) {
+    for (int j = 0; i < values.size(); j += ustride) {
       values[i++] = points[j + 0];
       values[i++] = points[j + 1];
     }
   }
   else if (target == GL_MAP1_INDEX ||
            target == GL_MAP1_TEXTURE_COORD_1) {
-    values.resize(1*uorder);
+    values.resize(uint(1*uorder));
 
-    for (int i = 0, j = 0; i < 1*uorder; j += ustride)
+    for (int j = 0; i < values.size(); j += ustride)
       values[i++] = points[j + 0];
   }
 
@@ -3077,7 +3078,7 @@ glMap1d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
 
   map.setU1        (u1);
   map.setU2        (u2);
-  map.setNumUValues(uorder);
+  map.setNumUValues(uint(uorder));
   map.setValues    (values);
 
   gl->setMap1(target, map);
@@ -3091,12 +3092,14 @@ glMap1f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
 
   std::vector<double> values;
 
+  uint i = 0;
+
   if      (target == GL_MAP1_VERTEX_4        ||
            target == GL_MAP1_COLOR_4         ||
            target == GL_MAP1_TEXTURE_COORD_4) {
-    values.resize(4*uorder);
+    values.resize(uint(4*uorder));
 
-    for (int u = 0, i = 0, j = 0; u < uorder; ++u, j += ustride) {
+    for (int u = 0, j = 0; u < uorder; ++u, j += ustride) {
       values[i++] = points[j + 0];
       values[i++] = points[j + 1];
       values[i++] = points[j + 2];
@@ -3106,27 +3109,27 @@ glMap1f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
   else if (target == GL_MAP1_VERTEX_3        ||
            target == GL_MAP1_NORMAL          ||
            target == GL_MAP1_TEXTURE_COORD_3) {
-    values.resize(3*uorder);
+    values.resize(uint(3*uorder));
 
-    for (int u = 0, i = 0, j = 0; u < uorder; ++u, j += ustride) {
+    for (int u = 0, j = 0; u < uorder; ++u, j += ustride) {
       values[i++] = points[j + 0];
       values[i++] = points[j + 1];
       values[i++] = points[j + 2];
     }
   }
   else if (target == GL_MAP1_TEXTURE_COORD_2) {
-    values.resize(2*uorder);
+    values.resize(uint(2*uorder));
 
-    for (int u = 0, i = 0, j = 0; u < uorder; ++u, j += ustride) {
+    for (int u = 0, j = 0; u < uorder; ++u, j += ustride) {
       values[i++] = points[j + 0];
       values[i++] = points[j + 1];
     }
   }
   else if (target == GL_MAP1_INDEX ||
            target == GL_MAP1_TEXTURE_COORD_1) {
-    values.resize(1*uorder);
+    values.resize(uint(1*uorder));
 
-    for (int u = 0, i = 0, j = 0; u < uorder; ++u, j += ustride)
+    for (int u = 0, j = 0; u < uorder; ++u, j += ustride)
       values[i++] = points[j + 0];
   }
 
@@ -3134,7 +3137,7 @@ glMap1f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
 
   map.setU1        (u1);
   map.setU2        (u2);
-  map.setNumUValues(uorder);
+  map.setNumUValues(uint(uorder));
   map.setValues    (values);
 
   gl->setMap1(target, map);
@@ -3149,12 +3152,14 @@ glMap2d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
 
   std::vector<double> values;
 
+  uint i = 0;
+
   if      (target == GL_MAP2_VERTEX_4        ||
            target == GL_MAP2_COLOR_4         ||
            target == GL_MAP2_TEXTURE_COORD_4) {
-    values.resize(4*uorder*vorder);
+    values.resize(uint(4*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3170,9 +3175,9 @@ glMap2d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
   else if (target == GL_MAP2_VERTEX_3        ||
            target == GL_MAP2_NORMAL          ||
            target == GL_MAP2_TEXTURE_COORD_3) {
-    values.resize(3*uorder*vorder);
+    values.resize(uint(3*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3185,9 +3190,9 @@ glMap2d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
     }
   }
   else if (target == GL_MAP2_TEXTURE_COORD_2) {
-    values.resize(2*uorder*vorder);
+    values.resize(uint(2*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3200,9 +3205,9 @@ glMap2d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
   }
   else if (target == GL_MAP2_INDEX ||
            target == GL_MAP2_TEXTURE_COORD_1) {
-    values.resize(1*uorder*vorder);
+    values.resize(uint(1*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3219,8 +3224,8 @@ glMap2d(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder,
   map.setU2        (u2);
   map.setV1        (v1);
   map.setV2        (v2);
-  map.setNumUValues(uorder);
-  map.setNumVValues(vorder);
+  map.setNumUValues(uint(uorder));
+  map.setNumVValues(uint(vorder));
   map.setValues    (values);
 
   gl->setMap2(target, map);
@@ -3235,12 +3240,14 @@ glMap2f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
 
   std::vector<double> values;
 
+  uint i = 0;
+
   if      (target == GL_MAP2_VERTEX_4        ||
            target == GL_MAP2_COLOR_4         ||
            target == GL_MAP2_TEXTURE_COORD_4) {
-    values.resize(4*uorder*vorder);
+    values.resize(uint(4*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3256,9 +3263,9 @@ glMap2f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
   else if (target == GL_MAP2_VERTEX_3        ||
            target == GL_MAP2_NORMAL          ||
            target == GL_MAP2_TEXTURE_COORD_3) {
-    values.resize(3*uorder*vorder);
+    values.resize(uint(3*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3271,9 +3278,9 @@ glMap2f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
     }
   }
   else if (target == GL_MAP2_TEXTURE_COORD_2) {
-    values.resize(2*uorder*vorder);
+    values.resize(uint(2*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3286,9 +3293,9 @@ glMap2f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
   }
   else if (target == GL_MAP2_INDEX ||
            target == GL_MAP2_TEXTURE_COORD_1) {
-    values.resize(1*uorder*vorder);
+    values.resize(uint(1*uorder*vorder));
 
-    for (int v = 0, i = 0, j = 0; v < vorder; ++v) {
+    for (int v = 0, j = 0; v < vorder; ++v) {
       int j1 = j;
 
       for (int u = 0; u < uorder; ++u, j += ustride) {
@@ -3305,8 +3312,8 @@ glMap2f(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder,
   map.setU2        (u2);
   map.setV1        (v1);
   map.setV2        (v2);
-  map.setNumUValues(uorder);
-  map.setNumVValues(vorder);
+  map.setNumUValues(uint(uorder));
+  map.setNumVValues(uint(vorder));
   map.setValues    (values);
 
   gl->setMap2(target, map);
@@ -3404,7 +3411,7 @@ glMaterialiv(GLenum face, GLenum pname, const GLint *params)
 void
 glMatrixMode(GLenum mode)
 {
-  static int all_modes =
+  static uint all_modes =
     GL_MODELVIEW | GL_PROJECTION | GL_TEXTURE | GL_COLOR;
 
   CGL *gl = CGLMgrInst->getCurrentGL();
@@ -3419,7 +3426,7 @@ glMatrixMode(GLenum mode)
     return;
   }
 
-  gl->setMatrixMode(mode);
+  gl->setMatrixMode(int(mode));
 }
 
 void
@@ -3550,16 +3557,16 @@ glPixelStorei(GLenum pname, GLint param)
 
   switch (pname) {
     case GL_UNPACK_ALIGNMENT:
-      gl->modifyPixelStore().setUnpackAlignment(param);
+      gl->modifyPixelStore().setUnpackAlignment(uint(param));
       break;
     case GL_UNPACK_ROW_LENGTH:
-      gl->modifyPixelStore().setUnpackRowLength(param);
+      gl->modifyPixelStore().setUnpackRowLength(uint(param));
       break;
     case GL_PACK_ALIGNMENT:
-      gl->modifyPixelStore().setPackAlignment(param);
+      gl->modifyPixelStore().setPackAlignment(uint(param));
       break;
     case GL_PACK_ROW_LENGTH:
-      gl->modifyPixelStore().setPackRowLength(param);
+      gl->modifyPixelStore().setPackRowLength(uint(param));
       break;
     default:
       CGLMgrInst->unimplemented("glPixelStorei");
@@ -3636,10 +3643,10 @@ glPolygonMode(GLenum face, GLenum mode)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   if (face == GL_FRONT || face == GL_FRONT_AND_BACK) {
-    gl->setFrontFaceMode(mode);
+    gl->setFrontFaceMode(int(mode));
   }
   if (face == GL_BACK  || face == GL_FRONT_AND_BACK) {
-    gl->setBackFaceMode(mode);
+    gl->setBackFaceMode(int(mode));
   }
 }
 
@@ -3751,40 +3758,40 @@ glPushAttrib(GLbitfield mask)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  if (TST_FLAG(mask, GL_LIST_BIT)) {
+  if (TST_FLAG(mask, uint(GL_LIST_BIT))) {
     gl->pushAttrib<int>(GL_LIST_BIT, gl->getListBase());
 
-    RST_FLAG(mask, GL_LIST_BIT);
+    RST_FLAG(mask, uint(GL_LIST_BIT));
   }
 
-  if (TST_FLAG(mask, GL_ENABLE_BIT)) {
+  if (TST_FLAG(mask, uint(GL_ENABLE_BIT))) {
     CGLEnableBits enable_bits;
 
     enable_bits.save(gl);
 
     gl->pushAttrib<CGLEnableBits>(GL_ENABLE_BIT, enable_bits);
 
-    RST_FLAG(mask, GL_ENABLE_BIT);
+    RST_FLAG(mask, uint(GL_ENABLE_BIT));
   }
 
-  if (TST_FLAG(mask, GL_EVAL_BIT)) {
+  if (TST_FLAG(mask, uint(GL_EVAL_BIT))) {
     CGLEvalBits eval_bits;
 
     eval_bits.save(gl);
 
     gl->pushAttrib<CGLEvalBits>(GL_EVAL_BIT, eval_bits);
 
-    RST_FLAG(mask, GL_EVAL_BIT);
+    RST_FLAG(mask, uint(GL_EVAL_BIT));
   }
 
-  if (TST_FLAG(mask, GL_LIGHTING_BIT)) {
+  if (TST_FLAG(mask, uint(GL_LIGHTING_BIT))) {
     CGLLightingBits lighting_bits;
 
     lighting_bits.save(gl);
 
     gl->pushAttrib<CGLLightingBits>(GL_LIGHTING_BIT, lighting_bits);
 
-    RST_FLAG(mask, GL_LIGHTING_BIT);
+    RST_FLAG(mask, uint(GL_LIGHTING_BIT));
   }
 
   if (mask)
@@ -3972,7 +3979,8 @@ glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
 
   if (format == GL_RGBA) {
     if (type == GL_UNSIGNED_BYTE)
-      gl->readColorImage(x, y, width, height, (uchar *) pixels, 4, true);
+      gl->readColorImage(x, y, uint(width), uint(height),
+                         static_cast<uchar *>(const_cast<void *>(pixels)), 4, true);
     else
       CGLMgrInst->unimplemented("glReadPixels");
   }
@@ -4054,7 +4062,7 @@ glRenderMode(GLenum mode)
   else if (gl->getRenderMode() == GL_SELECT) {
     gl->modifySelectBuffer().setData();
 
-    size = gl->getSelectBuffer().num_hits;
+    size = int(gl->getSelectBuffer().num_hits);
   }
 
   gl->setRenderMode(mode);
@@ -4138,7 +4146,7 @@ glStencilFunc(GLenum func, GLint ref, GLuint mask)
   CGL *gl = CGLMgrInst->getCurrentGL();
 
   gl->modifyStencil().setFunc(func);
-  gl->modifyStencil().setRef (ref);
+  gl->modifyStencil().setRef (uint(ref));
   gl->modifyStencil().setMask(mask);
 }
 
@@ -4253,7 +4261,7 @@ glTexEnvi(GLenum target, GLenum pname, GLint param)
   if (target != GL_TEXTURE_ENV || pname != GL_TEXTURE_ENV_MODE)
     CGLMgrInst->unimplemented("glTexEnvi");
 
-  gl->modifyTextureEnv().setMode(param);
+  gl->modifyTextureEnv().setMode(uint(param));
 }
 
 void
@@ -4282,10 +4290,9 @@ glTexEnviv(GLenum target, GLenum pname, const GLint *params)
     CGLMgrInst->unimplemented("glTexEnviv");
 
   if      (pname == GL_TEXTURE_ENV_MODE)
-    gl->modifyTextureEnv().setMode(params[0]);
+    gl->modifyTextureEnv().setMode(uint(params[0]));
   else if (pname == GL_TEXTURE_ENV_COLOR)
-    gl->modifyTextureEnv().setColor(
-      CRGBA(params[0], params[1], params[2], params[3]));
+    gl->modifyTextureEnv().setColor(CRGBA(params[0], params[1], params[2], params[3]));
   else
     CGLMgrInst->unimplemented("glTexEnviv");
 }
@@ -4400,13 +4407,13 @@ glTexGeni(GLenum coord, GLenum pname, GLint param)
 
   if (pname == GL_TEXTURE_GEN_MODE) {
     if      (coord == GL_S)
-      gl->modifyTextureGen().setSMode(param);
+      gl->modifyTextureGen().setSMode(uint(param));
     else if (coord == GL_T)
-      gl->modifyTextureGen().setTMode(param);
+      gl->modifyTextureGen().setTMode(uint(param));
     else if (coord == GL_R)
-      gl->modifyTextureGen().setRMode(param);
+      gl->modifyTextureGen().setRMode(uint(param));
     else if (coord == GL_Q)
-      gl->modifyTextureGen().setQMode(param);
+      gl->modifyTextureGen().setQMode(uint(param));
     else
       CGLMgrInst->unimplemented("glTexGeni");
   }
@@ -4428,15 +4435,15 @@ glTexImage1D(GLenum target, GLint level, GLint /*internalFormat*/,
 
   uint ind = gl->getTexture1Data().getCurrentInd();
 
-  CGLTextureKey key(ind, level);
+  CGLTextureKey key(ind, uint(level));
 
-  CImagePtr image = gl->modifyTexture1Data().getTexture(key);
+  auto image = gl->modifyTexture1Data().getTexture(key);
 
   image->setDataSize(width, 1);
 
   if      (format == GL_RGBA) {
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
       for (int x = 0; x < width; x++, p += 4) {
         CRGBA rgba(CMathGen::mapToReal(p[0]),
@@ -4450,7 +4457,7 @@ glTexImage1D(GLenum target, GLint level, GLint /*internalFormat*/,
   }
   else if (format == GL_RGB) {
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
       for (int x = 0; x < width; x++, p += 3) {
         CRGBA rgba(CMathGen::mapToReal(p[0]),
@@ -4492,7 +4499,7 @@ glTexImage2D(GLenum target, GLint level, GLint internalFormat,
 
   uint ind = gl->getTexture2Data().getCurrentInd();
 
-  CGLTextureKey key(ind, level);
+  CGLTextureKey key(ind, uint(level));
 
   CImagePtr image = gl->modifyTexture2Data().getTextureImage(key);
 
@@ -4500,7 +4507,7 @@ glTexImage2D(GLenum target, GLint level, GLint internalFormat,
 
   if      (format == GL_RGBA) {
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
       for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++, p += 4) {
@@ -4516,7 +4523,7 @@ glTexImage2D(GLenum target, GLint level, GLint internalFormat,
   }
   else if (format == GL_RGB) {
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
       for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++, p += 3) {
@@ -4550,16 +4557,15 @@ glTexImage3D(GLenum target, GLint level, GLint /*internalFormat*/,
 
   uint ind = gl->getTexture3Data().getCurrentInd();
 
-  CGLTextureKey key(ind, level);
+  CGLTextureKey key(ind, uint(level));
 
-  CGLTexture3Data::CImagePtrStack stack =
-    gl->modifyTexture3Data().getTexture(key, depth);
+  auto stack = gl->modifyTexture3Data().getTexture(key, uint(depth));
 
   if      (format == GL_RGBA) {
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
-      for (int z = 0; z < depth; z++) {
+      for (uint z = 0; z < uint(depth); z++) {
         CImagePtr image = stack[z];
 
         image->setDataSize(width, height);
@@ -4579,9 +4585,9 @@ glTexImage3D(GLenum target, GLint level, GLint /*internalFormat*/,
   }
   else if (format == GL_RGB) {
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
-      for (int z = 0; z < depth; z++) {
+      for (uint z = 0; z < uint(depth); z++) {
         CImagePtr image = stack[z];
 
         image->setDataSize(width, height);
@@ -4720,13 +4726,13 @@ glTexParameteri(GLenum target, GLenum pname, GLint param)
   if      (target == GL_TEXTURE_1D) {
     switch (pname) {
       case GL_TEXTURE_WRAP_S:
-        gl->modifyTexture1Data().setWrapS(param);
+        gl->modifyTexture1Data().setWrapS(uint(param));
         break;
       case GL_TEXTURE_MAG_FILTER:
-        gl->modifyTexture1Data().setMagFilter(param);
+        gl->modifyTexture1Data().setMagFilter(uint(param));
         break;
       case GL_TEXTURE_MIN_FILTER:
-        gl->modifyTexture1Data().setMinFilter(param);
+        gl->modifyTexture1Data().setMinFilter(uint(param));
         break;
       default:
         CGLMgrInst->unimplemented("glTexParameteri");
@@ -4736,16 +4742,16 @@ glTexParameteri(GLenum target, GLenum pname, GLint param)
   else if (target == GL_TEXTURE_2D) {
     switch (pname) {
       case GL_TEXTURE_WRAP_S:
-        gl->modifyTexture2Data().setWrapS(param);
+        gl->modifyTexture2Data().setWrapS(uint(param));
         break;
       case GL_TEXTURE_WRAP_T:
-        gl->modifyTexture2Data().setWrapT(param);
+        gl->modifyTexture2Data().setWrapT(uint(param));
         break;
       case GL_TEXTURE_MAG_FILTER:
-        gl->modifyTexture2Data().setMagFilter(param);
+        gl->modifyTexture2Data().setMagFilter(uint(param));
         break;
       case GL_TEXTURE_MIN_FILTER:
-        gl->modifyTexture2Data().setMinFilter(param);
+        gl->modifyTexture2Data().setMinFilter(uint(param));
         break;
       default:
         CGLMgrInst->unimplemented("glTexParameteri");
@@ -4755,19 +4761,19 @@ glTexParameteri(GLenum target, GLenum pname, GLint param)
   else if (target == GL_TEXTURE_3D) {
     switch (pname) {
       case GL_TEXTURE_WRAP_S:
-        gl->modifyTexture3Data().setWrapS(param);
+        gl->modifyTexture3Data().setWrapS(uint(param));
         break;
       case GL_TEXTURE_WRAP_T:
-        gl->modifyTexture3Data().setWrapT(param);
+        gl->modifyTexture3Data().setWrapT(uint(param));
         break;
       case GL_TEXTURE_WRAP_R:
-        gl->modifyTexture3Data().setWrapR(param);
+        gl->modifyTexture3Data().setWrapR(uint(param));
         break;
       case GL_TEXTURE_MAG_FILTER:
-        gl->modifyTexture3Data().setMagFilter(param);
+        gl->modifyTexture3Data().setMagFilter(uint(param));
         break;
       case GL_TEXTURE_MIN_FILTER:
-        gl->modifyTexture3Data().setMinFilter(param);
+        gl->modifyTexture3Data().setMinFilter(uint(param));
         break;
       default:
         CGLMgrInst->unimplemented("glTexParameteri");
@@ -4787,13 +4793,13 @@ glTexSubImage2D(GLenum /*target*/, GLint level, GLint xoffset, GLint yoffset,
 
   uint ind = gl->getTexture2Data().getCurrentInd();
 
-  CGLTextureKey key(ind, level);
+  CGLTextureKey key(ind, uint(level));
 
   if (format == GL_RGBA) {
     CImagePtr image = gl->modifyTexture2Data().getTextureImage(key);
 
     if (type == GL_UNSIGNED_BYTE) {
-      uchar *p = (uchar *) pixels;
+      uchar *p = static_cast<uchar *>(const_cast<void *>(pixels));
 
       for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++, p += 4) {
@@ -4972,13 +4978,12 @@ glVertex4sv(const GLshort *s)
 }
 
 void
-glVertexPointer(GLint size, GLenum type, GLsizei stride,
-                const GLvoid *pointer)
+glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
 {
   gl_vertex_array_size    = size;
   gl_vertex_array_type    = type;
   gl_vertex_array_stride  = stride;
-  gl_vertex_array_pointer = (char *) pointer;
+  gl_vertex_array_pointer = static_cast<char *>(const_cast<void *>(pointer));
 }
 
 void

@@ -108,7 +108,10 @@ endPolygon()
   std::vector< std::vector<GLUTessVertex *> >::iterator p2 = vertices.end  ();
 
   for ( ; p1 != p2; ++p1) {
-    (*((void (*)(uint)) callbacks_[GLU_TESS_BEGIN]))(GL_LINE_LOOP);
+    using CallbackUInt  = void (*)(uint);
+    using CallbackVoidP = void (*)(void *);
+
+    reinterpret_cast<CallbackUInt>(callbacks_[GLU_TESS_BEGIN])(GL_LINE_LOOP);
 
     std::vector<GLUTessTriangle> triangles;
 
@@ -118,9 +121,9 @@ endPolygon()
     std::vector<GLUTessTriangle>::iterator pt2 = triangles.end  ();
 
     for ( ; pt1 != pt2; ++pt1) {
-      (*((void (*)(void *)) callbacks_[GLU_TESS_VERTEX]))((*pt1).vertex1->data);
-      (*((void (*)(void *)) callbacks_[GLU_TESS_VERTEX]))((*pt1).vertex2->data);
-      (*((void (*)(void *)) callbacks_[GLU_TESS_VERTEX]))((*pt1).vertex3->data);
+      reinterpret_cast<CallbackVoidP>(callbacks_[GLU_TESS_VERTEX])((*pt1).vertex1->data);
+      reinterpret_cast<CallbackVoidP>(callbacks_[GLU_TESS_VERTEX])((*pt1).vertex2->data);
+      reinterpret_cast<CallbackVoidP>(callbacks_[GLU_TESS_VERTEX])((*pt1).vertex3->data);
     }
 
     (*callbacks_[GLU_TESS_END])();

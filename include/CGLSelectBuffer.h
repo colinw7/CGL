@@ -33,13 +33,13 @@ struct CGLSelectBuffer {
   }
 
   void setData() {
-    num_hits = hit_list.size();
+    num_hits = uint(hit_list.size());
 
     HitList::iterator p1 = hit_list.begin();
     HitList::iterator p2 = hit_list.end  ();
 
     for ( ; p1 != p2; ++p1) {
-      uint num_names = (*p1).name_list.size();
+      uint num_names = uint((*p1).name_list.size());
 
       append(&num_names, 1);
 

@@ -45,7 +45,7 @@ class CGLMenu : public CXMenu {
 
   void addButton(CGLMenuButton *button);
 
-  uint getNumItems() const { return buttons_.size(); }
+  uint getNumItems() const { return uint(buttons_.size()); }
 };
 
 class CGLMenuButton : public CMenuButton {

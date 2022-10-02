@@ -127,7 +127,7 @@ class CGLWind {
   CGLFuncs             funcs_;
   CGLWindEventAdapter *event_handler_;
   MenuMap              menu_map_;
-  uint                 mouse_button_;
+  int                  mouse_button_;
   CGLWindTimer        *timer_;
   int                  cursor_;
   bool                 redisplay_;
