@@ -16,7 +16,7 @@
 
 class CGLEventAdapter : public CXEventAdapter {
  public:
-  bool idleEvent();
+  bool idleEvent() override;
 };
 
 //-------------------

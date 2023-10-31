@@ -16,17 +16,17 @@ class CGLWindEventAdapter : public CXEventAdapter {
    window_(window) {
   }
 
-  bool exposeEvent();
-  bool resizeEvent();
+  bool exposeEvent() override;
+  bool resizeEvent() override;
 
-  bool buttonPressEvent  (const CMouseEvent &bevent);
-  bool buttonReleaseEvent(const CMouseEvent &bevent);
-  bool buttonMotionEvent (const CMouseEvent &bevent);
+  bool buttonPressEvent  (const CMouseEvent &bevent) override;
+  bool buttonReleaseEvent(const CMouseEvent &bevent) override;
+  bool buttonMotionEvent (const CMouseEvent &bevent) override;
 
-  bool keyPressEvent  (const CKeyEvent &kevent);
-  bool keyReleaseEvent(const CKeyEvent &kevent);
+  bool keyPressEvent  (const CKeyEvent &kevent) override;
+  bool keyReleaseEvent(const CKeyEvent &kevent) override;
 
-  bool visibilityEvent(bool visible);
+  bool visibilityEvent(bool visible) override;
 };
 
 //----------
@@ -43,7 +43,7 @@ class CGLWindTimer : public CTimer {
    CTimer(msecs), proc_(proc), value_(value) {
   }
 
-  void timeOut() {
+  void timeOut() override {
     (*proc_)(value_);
   }
 };

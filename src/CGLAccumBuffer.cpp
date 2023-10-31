@@ -3,7 +3,7 @@
 
 CGLAccumBuffer::
 CGLAccumBuffer(uint width, uint height) :
- width_(0), height_(0), lines_(0), clear_color_(0,0,0,1)
+ width_(0), height_(0), lines_(nullptr), clear_color_(0,0,0,1)
 {
   resize(width, height);
 }

@@ -24,7 +24,7 @@ class CGLDisplayListStartBlock : public CGLDisplayListCmd {
    mode_(mode) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListSetBackground : public CGLDisplayListCmd {
@@ -36,7 +36,7 @@ class CGLDisplayListSetBackground : public CGLDisplayListCmd {
    bg_(bg) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListSetForeground : public CGLDisplayListCmd {
@@ -48,7 +48,7 @@ class CGLDisplayListSetForeground : public CGLDisplayListCmd {
    fg_(fg) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListSetNormal : public CGLDisplayListCmd {
@@ -60,7 +60,7 @@ class CGLDisplayListSetNormal : public CGLDisplayListCmd {
    normal_(normal) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListSetTexCoord : public CGLDisplayListCmd {
@@ -72,7 +72,7 @@ class CGLDisplayListSetTexCoord : public CGLDisplayListCmd {
    point_(point) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListAddBlockPoint : public CGLDisplayListCmd {
@@ -84,7 +84,7 @@ class CGLDisplayListAddBlockPoint : public CGLDisplayListCmd {
    point_(point) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListMultMatrix : public CGLDisplayListCmd {
@@ -96,7 +96,7 @@ class CGLDisplayListMultMatrix : public CGLDisplayListCmd {
    matrix_(matrix) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListSetMaterial : public CGLDisplayListCmd {
@@ -110,7 +110,7 @@ class CGLDisplayListSetMaterial : public CGLDisplayListCmd {
    face_(face), pname_(pname), param_(param) {
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListSetMaterialV : public CGLDisplayListCmd {
@@ -133,7 +133,7 @@ class CGLDisplayListSetMaterialV : public CGLDisplayListCmd {
     delete [] params_;
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListBitmap : public CGLDisplayListCmd {
@@ -165,12 +165,12 @@ class CGLDisplayListBitmap : public CGLDisplayListCmd {
     delete [] bitmap_;
   }
 
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayListEndBlock : public CGLDisplayListCmd {
  public:
-  bool execute(CGL *cgl);
+  bool execute(CGL *cgl) override;
 };
 
 class CGLDisplayList {

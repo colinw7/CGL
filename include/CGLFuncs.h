@@ -11,7 +11,7 @@ typedef void (*CGLVisibilityFunc)(int state);
 typedef void (*CGLSpecialFunc   )(int key, int x, int y);
 
 struct CGLFuncs {
-  CGLExposeFunc    expose;
+  CGLExposeFunc     expose;
   CGLResizeFunc     resize;
   CGLMouseFunc      mouse;
   CGLMotionFunc     motion;
@@ -21,14 +21,14 @@ struct CGLFuncs {
   CGLSpecialFunc    special;
 
   CGLFuncs() :
-   expose    (0),
-   resize    (0),
-   mouse     (0),
-   motion    (0),
-   idle      (0),
-   keyboard  (0),
-   visibility(0),
-   special   (0) {
+   expose    (nullptr),
+   resize    (nullptr),
+   mouse     (nullptr),
+   motion    (nullptr),
+   idle      (nullptr),
+   keyboard  (nullptr),
+   visibility(nullptr),
+   special   (nullptr) {
   }
 };
 

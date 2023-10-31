@@ -7,7 +7,7 @@
 
 CGLColorBuffer::
 CGLColorBuffer(CGL *gl, uint width, uint height) :
- gl_(gl), width_(0), height_(0), lines_(0), clear_color_(0,0,0,1),
+ gl_(gl), width_(0), height_(0), lines_(nullptr), clear_color_(0,0,0,1),
  clear_ind_(0), clear_depth_(100), smooth_(false), line_width_(0),
  depth_writable_(true), stencil_clear_value_(0), stencil_mask_(0xFF)
 {
