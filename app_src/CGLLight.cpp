@@ -7,10 +7,10 @@ struct CPoint3DToFV {
   float fvalues[4];
 
   CPoint3DToFV(const CPoint3D &point) {
-    fvalues[0] = point.x;
-    fvalues[1] = point.y;
-    fvalues[2] = point.z;
-    fvalues[3] = 0.0;
+    fvalues[0] = float(point.x);
+    fvalues[1] = float(point.y);
+    fvalues[2] = float(point.z);
+    fvalues[3] = 0.0f;
   }
 };
 
@@ -59,13 +59,13 @@ CGLLight::
 setup()
 {
   if (enabled_)
-    glEnable(id_);
+    glEnable(uint(id_));
   else
-    glDisable(id_);
+    glDisable(uint(id_));
 
-  glLightfv(id_, GL_AMBIENT , CRGBAToFV(getAmbient ()).fvalues);
-  glLightfv(id_, GL_DIFFUSE , CRGBAToFV(getDiffuse ()).fvalues);
-  glLightfv(id_, GL_SPECULAR, CRGBAToFV(getSpecular()).fvalues);
+  glLightfv(uint(id_), GL_AMBIENT , CRGBAToFV(getAmbient ()).fvalues);
+  glLightfv(uint(id_), GL_DIFFUSE , CRGBAToFV(getDiffuse ()).fvalues);
+  glLightfv(uint(id_), GL_SPECULAR, CRGBAToFV(getSpecular()).fvalues);
 
   CPoint3DToFV pv(getPosition());
 
@@ -73,7 +73,7 @@ setup()
 
   fvalues[3] = (getDirectional() ? 0.0 : 1.0);
 
-  glLightfv(id_, GL_POSITION, fvalues);
+  glLightfv(uint(id_), GL_POSITION, fvalues);
 }
 
 void
@@ -83,9 +83,9 @@ setEnabled(bool enabled)
   enabled_ = enabled;
 
   if (enabled_)
-    glEnable(id_);
+    glEnable(uint(id_));
   else
-    glDisable(id_);
+    glDisable(uint(id_));
 
   setup();
 }
@@ -96,7 +96,7 @@ setAmbient(const CRGBA &rgba)
 {
   CGeomLight3DData::setAmbient(rgba);
 
-  glLightfv(id_, GL_AMBIENT, CRGBAToFV(getAmbient()).fvalues);
+  glLightfv(uint(id_), GL_AMBIENT, CRGBAToFV(getAmbient()).fvalues);
 }
 
 void
@@ -105,7 +105,7 @@ setDiffuse(const CRGBA &rgba)
 {
   CGeomLight3DData::setDiffuse(rgba);
 
-  glLightfv(id_, GL_DIFFUSE, CRGBAToFV(getDiffuse()).fvalues);
+  glLightfv(uint(id_), GL_DIFFUSE, CRGBAToFV(getDiffuse()).fvalues);
 }
 
 void
@@ -114,7 +114,7 @@ setSpecular(const CRGBA &rgba)
 {
   CGeomLight3DData::setSpecular(rgba);
 
-  glLightfv(id_, GL_SPECULAR, CRGBAToFV(getSpecular()).fvalues);
+  glLightfv(uint(id_), GL_SPECULAR, CRGBAToFV(getSpecular()).fvalues);
 }
 
 void
@@ -129,5 +129,5 @@ setPosition(const CPoint3D &pos)
 
   fvalues[3] = (getDirectional() ? 0.0 : 1.0);
 
-  glLightfv(id_, GL_POSITION, fvalues);
+  glLightfv(uint(id_), GL_POSITION, fvalues);
 }

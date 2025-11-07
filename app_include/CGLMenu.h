@@ -9,14 +9,6 @@ class CGLWindow;
 class CGLMenuItem;
 
 class CGLMenu {
- protected:
-  typedef std::map<uint,CGLMenuItem *> MenuItemMap;
-
-  CGLWindow   *window_;
-  uint         id_;
-  uint         item_id_;
-  MenuItemMap  menu_item_map_;
-
  public:
   CGLMenu(CGLWindow *window);
 
@@ -45,13 +37,19 @@ class CGLMenu {
 
  protected:
   static void menuCB(int item_id);
+
+ protected:
+  typedef std::map<uint,CGLMenuItem *> MenuItemMap;
+
+  CGLWindow   *window_;
+  uint         id_;
+  uint         item_id_;
+  MenuItemMap  menu_item_map_;
 };
 
-class CGLMenuItem {
- protected:
-  uint        id_;
-  std::string text_;
+//---
 
+class CGLMenuItem {
  public:
   CGLMenuItem(const std::string &text) :
    id_(0), text_(text) {
@@ -66,16 +64,17 @@ class CGLMenuItem {
   void setId(uint id) { id_ = id; }
 
   virtual bool exec() { return false; }
+
+ protected:
+  uint        id_;
+  std::string text_;
 };
+
+//---
 
 #define CGLMenuMgrInst CGLMenuMgr::getInstance()
 
 class CGLMenuMgr {
- protected:
-  typedef std::map<uint,CGLMenu *> MenuMap;
-
-  MenuMap menu_map_;
-
  public:
   static CGLMenuMgr *getInstance() {
     static CGLMenuMgr *instance;
@@ -107,6 +106,11 @@ class CGLMenuMgr {
   // not to be implemented
   CGLMenuMgr(const CGLMenuMgr &mgr);
   CGLMenuMgr &operator=(const CGLMenuMgr &mgr);
+
+ protected:
+  typedef std::map<uint,CGLMenu *> MenuMap;
+
+  MenuMap menu_map_;
 };
 
 #endif

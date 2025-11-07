@@ -33,7 +33,7 @@ CGLWindow.cpp \
 CPP_OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(CPP_SRC))
 
 CFLAGS = \
--std=c++14 \
+-std=c++17 \
 $(CDEBUG) \
 -I$(INC_DIR) \
 -I. \

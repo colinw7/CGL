@@ -5,7 +5,7 @@
 
 class CGLPushButton : public CGLWidget {
  protected:
-  typedef boost::signal<void ()> PressedSignalType;
+  typedef boost::signals2::signal<void ()> PressedSignalType;
 
   std::string       label_;
   CImagePtr         image_;
@@ -29,9 +29,9 @@ class CGLPushButton : public CGLWidget {
   }
 
  protected:
-  void draw();
+  void draw() override;
 
-  void buttonPress(const CMouseEvent &e);
+  void buttonPress(const CMouseEvent &e) override;
 };
 
 #endif

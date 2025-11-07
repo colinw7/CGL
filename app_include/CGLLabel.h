@@ -2,7 +2,7 @@
 #define CGLLabel_H
 
 #include <CGLWidget.h>
-#include <boost/signal.hpp>
+#include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
 
 class CGLLabel : public CGLWidget {
@@ -24,7 +24,7 @@ class CGLLabel : public CGLWidget {
   void setImage(CImagePtr image);
 
  protected:
-  void draw();
+  void draw() override;
 };
 
 #endif

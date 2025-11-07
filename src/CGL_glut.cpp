@@ -20,9 +20,6 @@
 #define CGLGlutInst CGLGlut::getInstance()
 
 class CGLGlut {
- private:
-  int display_mode_;
-
  public:
   static CGLGlut *getInstance() {
     static CGLGlut *instance;
@@ -41,6 +38,9 @@ class CGLGlut {
   CGLGlut() :
    display_mode_(GLUT_RGBA | GLUT_SINGLE | GLUT_DEPTH) {
   }
+
+ private:
+  int display_mode_;
 };
 
 static GLfloat
@@ -83,15 +83,15 @@ CGL_glut_cube_faces[6][4] = {
 # define GLUT_STROKE_MONO_ROMAN ((void *) &glutStrokeMonoRoman)
 #endif
 
-void *glutBitmap8By13        = NULL;
-void *glutBitmap9By15        = NULL;
-void *glutBitmapHelvetica10  = NULL;
-void *glutBitmapHelvetica12  = NULL;
-void *glutBitmapHelvetica18  = NULL;
-void *glutBitmapTimesRoman10 = NULL;
-void *glutBitmapTimesRoman24 = NULL;
-void *glutStrokeRoman        = NULL;
-void *glutStrokeMonoRoman    = NULL;
+void *glutBitmap8By13        = nullptr;
+void *glutBitmap9By15        = nullptr;
+void *glutBitmapHelvetica10  = nullptr;
+void *glutBitmapHelvetica12  = nullptr;
+void *glutBitmapHelvetica18  = nullptr;
+void *glutBitmapTimesRoman10 = nullptr;
+void *glutBitmapTimesRoman24 = nullptr;
+void *glutStrokeRoman        = nullptr;
+void *glutStrokeMonoRoman    = nullptr;
 
 static CFontPtr glutBitmap8By13Font;
 static CFontPtr glutBitmap9By15Font;
@@ -101,14 +101,14 @@ static CFontPtr glutBitmapHelvetica18Font;
 static CFontPtr glutBitmapTimesRoman10Font;
 static CFontPtr glutBitmapTimesRoman24Font;
 
-static CGLMenu *glut_menu = NULL;
+static CGLMenu *glut_menu = nullptr;
 
 static CHRTime glut_start_time;
 
 void
 glutAddMenuEntry(const char *label, int value)
 {
-  if (glut_menu != NULL)
+  if (glut_menu != nullptr)
     new CGLMenuButton(glut_menu, label, value);
 }
 
@@ -121,7 +121,7 @@ glutAddSubMenu(const char * /*label*/, int /*subMenu*/)
 void
 glutAttachMenu(int button)
 {
-  if (glut_menu != NULL)
+  if (glut_menu != nullptr)
     CGLMgrInst->getCurrentWindow()->setMenu(button, glut_menu->getId());
 }
 
@@ -463,7 +463,7 @@ glutGetProcAddress(const char * /*procName*/)
 {
   CGLMgrInst->unimplemented("glutGetProcAddress");
 
-  return NULL;
+  return nullptr;
 }
 
 int

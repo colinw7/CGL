@@ -2,9 +2,10 @@
 #define CGLWidget_H
 
 #define BOOST_SIGNALS_NO_DEPRECATION_WARNING 1
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS 1
 
 #include <CGLWindow.h>
-#include <boost/signal.hpp>
+#include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
 
 #define CGLWidgetMgrInst CGLWidgetMgr::getInstance()
@@ -33,7 +34,7 @@ class CGLWidget {
   typedef std::list<CGLWidget *> WidgetList;
 
  protected:
-  typedef boost::signal<void ()> RegionSignalType;
+  typedef boost::signals2::signal<void ()> RegionSignalType;
 
   struct Region {
     uint             id;

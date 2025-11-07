@@ -14,18 +14,6 @@ class CGLAccumBuffer {
     }
   };
 
- private:
-  struct Line {
-    Point *points;
-  };
-
-  //------
-
-  uint   width_;
-  uint   height_;
-  Line  *lines_;
-  CRGBA  clear_color_;
-
  public:
   CGLAccumBuffer(uint width=100, uint height=100);
  ~CGLAccumBuffer();
@@ -42,6 +30,18 @@ class CGLAccumBuffer {
   const CRGBA &getPoint(uint x, uint y);
 
   void setPoint(uint x, uint y, const CRGBA &color);
+
+ private:
+  struct Line {
+    Point *points { nullptr };
+  };
+
+  //------
+
+  uint   width_       { 0 };
+  uint   height_      { 0 };
+  Line*  lines_       { nullptr };
+  CRGBA  clear_color_ { 0, 0, 0, 1 };
 };
 
 #endif

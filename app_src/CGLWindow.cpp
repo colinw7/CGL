@@ -2,6 +2,7 @@
 #include <CGLApp.h>
 #include <CGeomObject3D.h>
 #include <CGLWidget.h>
+#include <CImageLib.h>
 #include <GL/glut.h>
 
 #ifdef USE_XMASK
@@ -24,24 +25,16 @@ createWindow(CWindow *parent, int x, int y, uint width, uint height)
 
   assert(gparent);
 
-  return gparent->addWindow(x, y, width, height);
+  return gparent->addWindow(x, y, int(width), int(height));
 }
 
 //-------------
 
 CGLWindow::
 CGLWindow(CGLWindow *parent) :
- parent_       (parent),
- id_           (0),
- pos_          (0, 0),
- size_         (100, 100),
- renderer_     (NULL),
- event_adapter_(NULL),
- disp_attr_    (NULL),
- control_      (NULL),
- pick_name_    (0)
+ parent_(parent)
 {
-  disp_attr_ = new CGLDispAttr;
+  disp_attr_ = std::make_unique<CGLDispAttr>();
 }
 
 CGLWindow::
@@ -61,19 +54,19 @@ init(int x, int y, uint width, uint height, const std::string &title)
       glutInitWindowPosition(x, y);
 
     if (width > 0 && height > 0)
-      glutInitWindowSize(width, height);
+      glutInitWindowSize(int(width), int(height));
 
     id = glutCreateWindow(title.c_str());
   }
   else {
     int parentId = parent_->getId();
 
-    id = glutCreateSubWindow(parentId, x, y, width, height);
+    id = glutCreateSubWindow(parentId, x, y, int(width), int(height));
   }
 
   setId(id);
 
-  setSize(width, height);
+  setSize(int(width), int(height));
 
   CGLAppInst->addWindow(this);
 
@@ -112,7 +105,7 @@ addWindow(int x, int y, int width, int height)
 {
   CGLWindow *window = CGLAppInst->newWindow(this);
 
-  window->init(x, y, width, height);
+  window->init(x, y, uint(width), uint(height));
 
   window->setup();
 
@@ -126,12 +119,12 @@ getRenderer() const
   if (! renderer_) {
     CGLWindow *th = const_cast<CGLWindow *>(this);
 
-    th->renderer_ = new CGLRenderer3D(th);
+    th->renderer_ = std::make_unique<CGLRenderer3D>(th);
 
     th->renderer_->updateSize();
   }
 
-  return renderer_;
+  return renderer_.get();
 }
 
 CGLLight *
@@ -157,7 +150,7 @@ CGLDispAttr *
 CGLWindow::
 getDispAttr()
 {
-  return disp_attr_;
+  return disp_attr_.get();
 }
 
 void
@@ -166,11 +159,11 @@ addControl(uint dim, CGLControl::Orientation orientation)
 {
   if (control_ == NULL) {
     if (dim == 2)
-      control_ = new CGLControl2D(orientation);
+      control_ = std::make_unique<CGLControl2D>(orientation);
     else {
-      CGLControl3D *control = new CGLControl3D;
+      auto *control = new CGLControl3D;
 
-      control_ = control;
+      control_ = ControlP(control);
     }
   }
 }
@@ -179,7 +172,7 @@ CGLControl *
 CGLWindow::
 getControl()
 {
-  return control_;
+  return control_.get();
 }
 
 void
@@ -214,8 +207,8 @@ getSize(uint *w, uint *h) const
 
   glGetIntegerv(GL_VIEWPORT, values);
 
-  *w = values[2];
-  *h = values[3];
+  *w = uint(values[2]);
+  *h = uint(values[3]);
 }
 
 void
@@ -244,7 +237,7 @@ void
 CGLWindow::
 resize(uint w, uint h)
 {
-  reshape(w, h);
+  reshape(int(w), int(h));
 }
 
 void
@@ -367,7 +360,7 @@ void
 CGLWindow::
 setEventAdapter(CEventAdapter *adapter)
 {
-  event_adapter_ = adapter;
+  event_adapter_ = EventAdapterP(adapter);
 }
 
 bool
@@ -537,8 +530,8 @@ initOverlay()
 
   glLoadIdentity();
 
-  uint w = glutGet(GLUT_WINDOW_WIDTH );
-  uint h = glutGet(GLUT_WINDOW_HEIGHT);
+  uint w = uint(glutGet(GLUT_WINDOW_WIDTH ));
+  uint h = uint(glutGet(GLUT_WINDOW_HEIGHT));
 
   glOrtho(0.0, w, h, 0.0, -1.0, 1.0);
 
@@ -778,7 +771,7 @@ pickScene(const CMouseEvent &e)
   if (hits != 0) {
     printf("hits = %d\n", hits);
 
-    for (int i = 0, j = 0; i < hits; ++i) {
+    for (uint i = 0, j = 0; i < uint(hits); ++i) {
       printf("\tsize = %u, min = %u, max = %u : ",
              buffer[j], buffer[j + 1], buffer[j + 2]);
 
@@ -795,10 +788,10 @@ pickScene(const CMouseEvent &e)
   /* Determine the nearest hit */
 
   GLint  min  = -1;
-  GLuint minZ = -1;
+  GLuint minZ = uint(-1);
 
   if (hits) {
-    for (int i = 0, j = 0; i < hits; ++i) {
+    for (uint i = 0, j = 0; i < uint(hits); ++i) {
       if (buffer[j + 1] < minZ) {
         /* If name stack is empty, return -1                */
         /* If name stack is not empty, return top-most name */
@@ -806,9 +799,9 @@ pickScene(const CMouseEvent &e)
         if (buffer[j] == 0)
           min = -1;
         else
-          min = buffer[j+2+buffer[j]];
+          min = int(buffer[j + 2 + buffer[j]]);
 
-        minZ = buffer[j+1];
+        minZ = buffer[j + 1];
       }
 
       j += buffer[j] + 3;
@@ -907,10 +900,10 @@ pickOverlay(const CMouseEvent &e)
   /* Determine the nearest hit */
 
   GLint  min  = -1;
-  GLuint minZ = -1;
+  GLuint minZ = uint(-1);
 
   if (hits) {
-    for (int i = 0, j = 0; i < hits; ++i) {
+    for (uint i = 0, j = 0; i < uint(hits); ++i) {
       if (buffer[j + 1] < minZ) {
         /* If name stack is empty, return -1                */
         /* If name stack is not empty, return top-most name */
@@ -918,9 +911,9 @@ pickOverlay(const CMouseEvent &e)
         if (buffer[j] == 0)
           min = -1;
         else
-          min = buffer[j+2+buffer[j]];
+          min = int(buffer[uint(j + 2 + buffer[j])]);
 
-        minZ = buffer[j+1];
+        minZ = buffer[j + 1];
       }
 
       j += buffer[j] + 3;
@@ -957,7 +950,7 @@ setShapeFromImage(CImagePtr image)
 
   getSize(&w, &h);
 
-  CImagePtr image1 = image->resize(w, h);
+  CImagePtr image1 = image->resize(int(w), int(h));
 
   Pixmap mask;
 
@@ -966,7 +959,7 @@ setShapeFromImage(CImagePtr image)
 
   mask = XCreatePixmap(display, xwindow, w, h, 1);
 
-  GC gc = XCreateGC(display, mask, 0, 0);
+  GC gc = XCreateGC(display, mask, 0, nullptr);
 
   XSetForeground(display, gc, 0);
 
@@ -978,10 +971,10 @@ setShapeFromImage(CImagePtr image)
 
   for (uint y = 0, ind = 0; y < h; ++y) {
     for (uint x = 0; x < w; ++x, ++ind) {
-      alpha = image1->getAlpha(ind);
+      alpha = image1->getAlpha(int(ind));
 
       if (alpha >= 0.5)
-        XDrawPoint(display, mask, gc, x, y);
+        XDrawPoint(display, mask, gc, int(x), int(y));
     }
   }
 
@@ -989,7 +982,7 @@ setShapeFromImage(CImagePtr image)
 
   XShapeCombineMask(display, xwindow, ShapeBounding, 0, 0, mask, ShapeSet);
 #else
-  assert(image.isValid());
+  assert(image);
 #endif
 }
 
@@ -1005,20 +998,20 @@ addObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
   CMatrix3D nmatrix = matrix.inverse().transposed();
 
-  CMatrix3D vmatrix(CMATRIX_TYPE_IDENTITY);
+  CMatrix3D vmatrix(CMatrix3D::Type::IDENTITY);
 
   const CGeomObject3D::FaceList &faces = object.getFaces();
 
-  CGeomObject3D::FaceList::const_iterator pf1 = faces.begin();
-  CGeomObject3D::FaceList::const_iterator pf2 = faces.end  ();
+  auto pf1 = faces.begin();
+  auto pf2 = faces.end  ();
 
   for ( ; pf1 != pf2; ++pf1) {
     const CGeomFace3D *face = *pf1;
 
     const CGeomFace3D::VertexList &vertices = face->getVertices();
 
-    CGeomFace3D::VertexList::const_iterator pv1 = vertices.begin();
-    CGeomFace3D::VertexList::const_iterator pv2 = vertices.end  ();
+    auto pv1 = vertices.begin();
+    auto pv2 = vertices.end  ();
 
     for ( ; pv1 != pv2; ++pv1) {
       CGeomVertex3D &vertex = object.getVertex(*pv1);
@@ -1044,7 +1037,7 @@ addObject(CGeomObject3D &object, const CMatrix3D &matrix)
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, CRGBAToFV(ambient).fvalues);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, CRGBAToFV(diffuse).fvalues);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, CRGBAToFV(specular).fvalues);
-    glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+    glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, float(shininess));
 
     glColor3d(diffuse.getRed(), diffuse.getGreen(), diffuse.getBlue());
 
@@ -1058,10 +1051,10 @@ addObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
         const CPoint3D &point = vertex.getViewed();
 
-        if (vertex.getNormalSet()) {
-          CVector3D normal = nmatrix*vertex.getNormal();
+        if (vertex.hasNormal()) {
+          CVector3D normal1 = nmatrix*vertex.getNormal();
 
-          glNormal3d(normal.getX(), normal.getY(), normal.getZ());
+          glNormal3d(normal1.getX(), normal1.getY(), normal1.getZ());
         }
         else
           glNormal3d(normal.getX(), normal.getY(), normal.getZ());
@@ -1083,7 +1076,7 @@ addObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
         CVector3D normal1;
 
-        if (vertex.getNormalSet())
+        if (vertex.hasNormal())
           normal1 = nmatrix*vertex.getNormal();
         else
           normal1 = normal;
@@ -1097,17 +1090,17 @@ addObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
       glBegin(GL_POLYGON);
 
-      CGeomFace3D::VertexList::const_reverse_iterator pv1 = vertices.rbegin();
-      CGeomFace3D::VertexList::const_reverse_iterator pv2 = vertices.rend  ();
+      auto prv1 = vertices.rbegin();
+      auto prv2 = vertices.rend  ();
 
-      for ( ; pv1 != pv2; ++pv1) {
-        const CGeomVertex3D &vertex = object.getVertex(*pv1);
+      for ( ; prv1 != prv2; ++prv1) {
+        const CGeomVertex3D &vertex = object.getVertex(*prv1);
 
         const CPoint3D &point = vertex.getViewed();
 
         CVector3D normal1;
 
-        if (vertex.getNormalSet())
+        if (vertex.hasNormal())
           normal1 = nmatrix*vertex.getNormal();
         else
           normal1 = -1*normal;
@@ -1127,8 +1120,8 @@ addObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
   const CGeomObject3D::LineList &lines = object.getLines();
 
-  CGeomObject3D::LineList::const_iterator pl1 = lines.begin();
-  CGeomObject3D::LineList::const_iterator pl2 = lines.end  ();
+  auto pl1 = lines.begin();
+  auto pl2 = lines.end  ();
 
   for ( ; pl1 != pl2; ++pl1) {
     CGeomVertex3D vertex1 = (*pl1)->getStartVertex();
@@ -1167,8 +1160,8 @@ addWireframeObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
   const CGeomObject3D::FaceList &faces = object.getFaces();
 
-  CGeomObject3D::FaceList::const_iterator pf1 = faces.begin();
-  CGeomObject3D::FaceList::const_iterator pf2 = faces.end  ();
+  auto pf1 = faces.begin();
+  auto pf2 = faces.end  ();
 
   for ( ; pf1 != pf2; ++pf1) {
     const CGeomFace3D::VertexList &vertices = (*pf1)->getVertices();
@@ -1177,8 +1170,8 @@ addWireframeObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
     const CRGBA &color = (*pf1)->getMaterial().getDiffuse();
 
-    CGeomFace3D::VertexList::const_iterator pv1 = vertices.begin();
-    CGeomFace3D::VertexList::const_iterator pv2 = vertices.end  ();
+    auto pv1 = vertices.begin();
+    auto pv2 = vertices.end  ();
 
     for ( ; pv1 != pv2; ++pv1) {
       object.getVertex(*pv1).place(matrix);
@@ -1204,8 +1197,8 @@ addWireframeObject(CGeomObject3D &object, const CMatrix3D &matrix)
 
   const CGeomObject3D::LineList &lines = object.getLines();
 
-  CGeomObject3D::LineList::const_iterator pl1 = lines.begin();
-  CGeomObject3D::LineList::const_iterator pl2 = lines.end  ();
+  auto pl1 = lines.begin();
+  auto pl2 = lines.end  ();
 
   for ( ; pl1 != pl2; ++pl1) {
     CGeomVertex3D vertex1 = (*pl1)->getStartVertex();

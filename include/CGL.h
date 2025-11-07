@@ -4,7 +4,6 @@
 #include <CRGBA.h>
 #include <CValue.h>
 #include <CLineDash.h>
-#include <COptVal.h>
 #include <CPoint3D.h>
 #include <CMatrix3DH.h>
 #include <CIBBox2D.h>
@@ -233,15 +232,6 @@ class CGLPixelTransfer {
 #define CGLMgrInst CGLMgr::getInstance()
 
 class CGLMgr {
- private:
-  typedef std::map<uint,CGLWind *> WindowMap;
-
-  CGLWind   *current_window_;
-  uint       current_window_id_;
-  CIBBox2D   window_rect_;
-  WindowMap  window_map_;
-  uint       error_num_;
-
  public:
   static CGLMgr *getInstance() {
     static CGLMgr *instance;
@@ -300,10 +290,20 @@ class CGLMgr {
 
     return def_normal;
   }
+
+ private:
+  using WindowMap = std::map<uint, CGLWind *>;
+
+  CGLWind   *current_window_ { nullptr };
+  uint       current_window_id_ { 0 };
+  CIBBox2D   window_rect_;
+  WindowMap  window_map_;
+  uint       error_num_ { GL_NO_ERROR };
 };
 
-class CGL
-{
+//---------
+
+class CGL {
  public:
   typedef std::map<uint,CGLDisplayList *> DisplayListMap;
   typedef std::vector<CMatrix3DH *>       MatrixStack;
@@ -317,72 +317,77 @@ class CGL
 
   enum { MAX_CLIP_PLANES = 6 };
 
-  CGLWind                *window_;
-  CBBox3D                 viewport_;
-  CMatrix3DH              pixel_matrix_;
-  CMatrix3DH              ipixel_matrix_;
-  CGLColorBuffer         *color_buffer_;
-  CGLAccumBuffer          accum_buffer_;
-  uint                    render_mode_;
-  CRGBA                   bg_;
-  COptValT<CRGBA>         fg_;
-  COptValT<CVector3D>     normal_;
-  COptValT<CPoint3D>      tmap_;
+  CGLWind*                 window_;
+  CBBox3D                  viewport_;
+  CMatrix3DH               pixel_matrix_;
+  CMatrix3DH               ipixel_matrix_;
+  CGLColorBuffer*          color_buffer_ { nullptr };
+  CGLAccumBuffer           accum_buffer_;
+  uint                     render_mode_  { GL_RENDER };
+  CRGBA                    bg_;
+  std::optional<CRGBA>     fg_;
+  std::optional<CVector3D> normal_;
+  std::optional<CPoint3D>  tmap_;
 
   // lighting
-  CGLColorMaterial        color_material_;
-  CGLLightModel           light_model_;
-  LightList               lights_;
-  bool                    lighting_;
-  CGLMaterial             front_material_;
-  CGLMaterial             back_material_;
-  bool                    flat_shading_;
+  CGLColorMaterial color_material_;
+  CGLLightModel    light_model_;
+  LightList        lights_;
+  bool             lighting_     { false };
+  CGLMaterial      front_material_;
+  CGLMaterial      back_material_;
+  bool             flat_shading_ { false };
 
-  double                  line_width_;
-  CLineDash               line_dash_;
-  DisplayListMap          display_list_map_;
-  CGLDisplayList         *current_display_list_;
-  int                     matrix_mode_;
-  MatrixStack             model_view_matrix_stack_;
-  MatrixStack             model_view_imatrix_stack_;
-  MatrixStack             projection_matrix_stack_;
-  MatrixStack             projection_imatrix_stack_;
-  MatrixStack             texture_matrix_stack_;
-  MatrixStack             color_matrix_stack_;
-  bool                    double_buffer_;
-  double                  point_size_;
-  CGLAlphaTest            alpha_test_;
-  CGLDepthTest            depth_test_;
-  double                  depth_near_, depth_far_;
-  bool                    dither_;
-  bool                    line_stipple_;
-  bool                    line_smooth_;
-  int                     line_smooth_hint_;
-  bool                    poly_offset_fill_;
-  bool                    poly_stipple_;
-  CImagePtr               poly_stipple_image_;
-  bool                    poly_smooth_;
-  double                  poly_offset_factor_;
-  double                  poly_offset_units_;
-  int                     front_face_mode_;
-  int                     back_face_mode_;
-  CGLBlend                blend_;
-  bool                    fog_enabled_;
-  int                     fog_hint_;
-  CFogData                fog_data_;
-  CGLClipPlane            clip_plane_[MAX_CLIP_PLANES];
-  int                     block_type_;
-  int                     list_base_;
-  VertexList              block_points_;
-  CGeomVertex3D           raster_pos_;
-  AttribStack             attrib_stack_;
-  bool                    color_table_enabled_;
+  double          line_width_           { 1.0 };
+  CLineDash       line_dash_;
+  DisplayListMap  display_list_map_;
+  CGLDisplayList* current_display_list_ { nullptr };
+
+  int         matrix_mode_ { GL_MODELVIEW };
+  MatrixStack model_view_matrix_stack_;
+  MatrixStack model_view_imatrix_stack_;
+  MatrixStack projection_matrix_stack_;
+  MatrixStack projection_imatrix_stack_;
+  MatrixStack texture_matrix_stack_;
+  MatrixStack color_matrix_stack_;
+
+  bool          double_buffer_      { true };
+  double        point_size_         { 1.0 };
+  CGLAlphaTest  alpha_test_;
+  CGLDepthTest  depth_test_;
+  double        depth_near_         { 0.0 };
+  double        depth_far_          { 1.0 };
+  bool          dither_             { false };
+  bool          line_stipple_       { false };
+  bool          line_smooth_        { false };
+  int           line_smooth_hint_   { GL_DONT_CARE };
+  bool          poly_offset_fill_   { false };
+  bool          poly_stipple_       { false };
+  CImagePtr     poly_stipple_image_;
+  bool          poly_smooth_        { false };
+  double        poly_offset_factor_ { 0.0 };
+  double        poly_offset_units_  { 0.0 };
+  int           front_face_mode_    { GL_FILL };
+  int           back_face_mode_     { GL_FILL };
+  CGLBlend      blend_;
+  bool          fog_enabled_        { false };
+  int           fog_hint_           { GL_DONT_CARE };
+  CFogData      fog_data_;
+  CGLClipPlane  clip_plane_[MAX_CLIP_PLANES];
+  int           block_type_         { -1 };
+  int           list_base_          { 0 };
+  VertexList    block_points_;
+  CGeomVertex3D raster_pos_;
+  AttribStack   attrib_stack_;
+
+  bool                    color_table_enabled_    { false };
   CGLColorTable           color_table_;
-  bool                    convolution_2d_enabled_;
+  bool                    convolution_2d_enabled_ { false };
   CGLConvolutionFilter2D  convolution_2d_;
-  bool                    histogram_enabled_;
+  bool                    histogram_enabled_      { false };
   CGLHistogram            histogram_;
-  bool                    minmax_enabled_;
+
+  bool                    minmax_enabled_         { false };
   CGLMinmax               minmax_;
   CGLMap1Data             map1_data_;
   std::map<uint,CGLMap1>  map1_;
@@ -391,23 +396,27 @@ class CGL
   std::map<uint,CGLMap2>  map2_;
   CGLMapGrid2             map_grid2_;
   bool                    map2_auto_normal_;
-  bool                    auto_normalize_;
-  CGLPixelStore           pixel_store_;
-  CGLPixelTransfer        pixel_transfer_;
-  double                  pixel_zoom_x_, pixel_zoom_y_;
-  uint                    texture_next_ind_;
-  CGLTexture1Data         texture1_data_;
-  CGLTexture2Data         texture2_data_;
-  CGLTexture3Data         texture3_data_;
-  CGLTextureEnv           texture_env_;
-  CGLTextureGen           texture_gen_;
-  CPolygonOrientation     front_face_orient_;
-  CGLCullFace             cull_face_;
-  CGLScissor              scissor_;
-  CGLStencil              stencil_;
-  CGLFeedbackBuffer       feedback_buffer_;
-  CGLSelectBuffer         select_buffer_;
-  NameStack               name_stack_;
+
+  bool             auto_normalize_;
+  CGLPixelStore    pixel_store_;
+  CGLPixelTransfer pixel_transfer_;
+  double           pixel_zoom_x_ { 1.0 };
+  double           pixel_zoom_y_ { 1.0 };
+
+  uint            texture_next_ind_ { 2 };
+  CGLTexture1Data texture1_data_;
+  CGLTexture2Data texture2_data_;
+  CGLTexture3Data texture3_data_;
+  CGLTextureEnv   texture_env_;
+  CGLTextureGen   texture_gen_;
+
+  CPolygonOrientation front_face_orient_;
+  CGLCullFace         cull_face_;
+  CGLScissor          scissor_;
+  CGLStencil          stencil_;
+  CGLFeedbackBuffer   feedback_buffer_;
+  CGLSelectBuffer     select_buffer_;
+  NameStack           name_stack_;
 
  public:
   CGL(CGLWind *window);
@@ -424,63 +433,36 @@ class CGL
 
   //----
 
-  const CRGBA &getForeground() const {
-    return fg_.getValue();
-  }
-
+  const CRGBA &getForeground() const { return fg_.value(); }
   void setForeground(const CRGBA &fg);
-
-  bool getForegroundSet() const {
-    return fg_.isValid();
-  }
+  bool getForegroundSet() const { return !! fg_; }
 
   //----
 
-  const CVector3D &getNormal() const {
-    return normal_.getValue();
-  }
-
+  const CVector3D &getNormal() const { return normal_.value(); }
   void setNormal(const CVector3D &normal);
-
-  bool getNormalSet() const {
-    return normal_.isValid();
-  }
+  bool getNormalSet() const { return !! normal_; }
 
   //----
 
-  const CPoint3D &getTexCoord() const {
-    return tmap_.getValue();
-  }
-
+  const CPoint3D &getTexCoord() const { return tmap_.value(); }
   void setTexCoord(const CPoint3D &tmap);
-
-  bool getTexCoordSet() const {
-    return tmap_.isValid();
-  }
+  bool getTexCoordSet() const { return !! tmap_; }
 
   //----
 
   void setMaterial(uint face, uint pname, double param);
   void setMaterialV(uint face, uint pname, double *params, uint num_params);
 
-  void setFrontMaterial(const CGLMaterial &material) {
-    front_material_ = material;
-  }
-  const CGLMaterial &getFrontMaterial() const {
-    return front_material_;
-  }
+  void setFrontMaterial(const CGLMaterial &material) { front_material_ = material; }
+  const CGLMaterial &getFrontMaterial() const { return front_material_; }
 
-  void setBackMaterial(const CGLMaterial &material) {
-    back_material_ = material;
-  }
-  const CGLMaterial &getBackMaterial() const {
-    return back_material_;
-  }
+  void setBackMaterial(const CGLMaterial &material) { back_material_ = material; }
+  const CGLMaterial &getBackMaterial() const { return back_material_; }
 
   void setFrontMaterialAmbient(const CRGBA &ambient) {
     front_material_.material.setAmbient(ambient);
   }
-
   void setBackMaterialAmbient(const CRGBA &ambient) {
     back_material_.material.setAmbient(ambient);
   }
@@ -488,7 +470,6 @@ class CGL
   void setFrontMaterialDiffuse(const CRGBA &diffuse) {
     front_material_.material.setDiffuse(diffuse);
   }
-
   void setBackMaterialDiffuse(const CRGBA &diffuse) {
     back_material_.material.setDiffuse(diffuse);
   }
@@ -496,7 +477,6 @@ class CGL
   void setFrontMaterialSpecular(const CRGBA &specular) {
     front_material_.material.setSpecular(specular);
   }
-
   void setBackMaterialSpecular(const CRGBA &specular) {
     back_material_.material.setSpecular(specular);
   }
@@ -504,7 +484,6 @@ class CGL
   void setFrontMaterialEmission(const CRGBA &emission) {
     front_material_.material.setEmission(emission);
   }
-
   void setBackMaterialEmission(const CRGBA &emission) {
     back_material_.material.setEmission(emission);
   }
@@ -512,7 +491,6 @@ class CGL
   void setFrontMaterialShininess(double shininess) {
     front_material_.material.setShininess(shininess);
   }
-
   void setBackMaterialShininess(double shininess) {
     back_material_.material.setShininess(shininess);
   }
@@ -520,7 +498,6 @@ class CGL
   void setFrontMaterialAmbientInd(int ind) {
     front_material_.ambient_ind = ind;
   }
-
   void setBackMaterialAmbientInd(int ind) {
     back_material_.ambient_ind = ind;
   }
@@ -528,7 +505,6 @@ class CGL
   void setFrontMaterialDiffuseInd(int ind) {
     front_material_.diffuse_ind = ind;
   }
-
   void setBackMaterialDiffuseInd(int ind) {
     back_material_.diffuse_ind = ind;
   }
@@ -536,42 +512,21 @@ class CGL
   void setFrontMaterialSpecularInd(int ind) {
     front_material_.specular_ind = ind;
   }
-
   void setBackMaterialSpecularInd(int ind) {
     back_material_.specular_ind = ind;
   }
 
-  void setLight(uint num, const CGeomLight3D &light) {
-    *lights_[num] = light;
-  }
+  void setLight(uint num, const CGeomLight3D &light) { *lights_[num] = light; }
+  const CGeomLight3D &getLight(uint num) { return *lights_[num]; }
 
-  const CGeomLight3D &getLight(uint num) {
-    return *lights_[num];
-  }
+  void setLightEnabled(uint num, bool flag) { lights_[num]->setEnabled(flag); }
+  bool getLightEnabled(uint num) { return lights_[num]->getEnabled(); }
 
-  void setLightEnabled(uint num, bool flag) {
-    lights_[num]->setEnabled(flag);
-  }
+  void setLightPosition(uint num, const CPoint3D &point) { lights_[num]->setAbsPosition(point); }
 
-  bool getLightEnabled(uint num) {
-    return lights_[num]->getEnabled();
-  }
-
-  void setLightPosition(uint num, const CPoint3D &point) {
-    lights_[num]->setAbsPosition(point);
-  }
-
-  void setLightAmbient(uint num, const CRGBA &rgba) {
-    lights_[num]->setAmbient(rgba);
-  }
-
-  void setLightDiffuse(uint num, const CRGBA &rgba) {
-    lights_[num]->setDiffuse(rgba);
-  }
-
-  void setLightSpecular(uint num, const CRGBA &rgba) {
-    lights_[num]->setSpecular(rgba);
-  }
+  void setLightAmbient (uint num, const CRGBA &rgba) { lights_[num]->setAmbient (rgba); }
+  void setLightDiffuse (uint num, const CRGBA &rgba) { lights_[num]->setDiffuse (rgba); }
+  void setLightSpecular(uint num, const CRGBA &rgba) { lights_[num]->setSpecular(rgba); }
 
   void setLightSpotDirection(uint num, const CVector3D &direction) {
     lights_[num]->setSpotDirection(direction);
@@ -731,8 +686,8 @@ class CGL
   void addBlockPoint(const CPoint3D &point);
   void addBlockPoint(const CPoint3D &point, const CRGBA &rgba,
                      const CVector3D &normal, const CPoint3D &tmap);
-  void addBlockPoint(const CPoint3D &point, const COptValT<CRGBA> &rgba,
-                     const COptValT<CVector3D> &normal, const COptValT<CPoint3D> &tmap);
+  void addBlockPoint(const CPoint3D &point, const std::optional<CRGBA> &rgba,
+                     const std::optional<CVector3D> &normal, const std::optional<CPoint3D> &tmap);
 
   ACCESSOR(RasterPos, CGeomVertex3D, raster_pos)
 

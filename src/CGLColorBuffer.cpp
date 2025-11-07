@@ -7,9 +7,7 @@
 
 CGLColorBuffer::
 CGLColorBuffer(CGL *gl, uint width, uint height) :
- gl_(gl), width_(0), height_(0), lines_(nullptr), clear_color_(0,0,0,1),
- clear_ind_(0), clear_depth_(100), smooth_(false), line_width_(0),
- depth_writable_(true), stencil_clear_value_(0), stencil_mask_(0xFF)
+ gl_(gl)
 {
   resize(width, height);
 }
@@ -125,7 +123,7 @@ fillPolygon(const std::vector<CGeomVertex3D *> &vertices)
   double zvmin, zvmax, zpmin, zpmax;
   int    i1min, i2min, i1max, i2max;
 
-  CPoint3D tmin(0,0,0);
+  CPoint3D tmin(0, 0, 0);
   CPoint3D tmax = tmin;
 
   CRGBA rgba_min = getDefaultColor();
@@ -397,7 +395,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
   double           zp1   = pixel1.z;
   double           zv1   = viewed1.z;
   CRGBA            rgba1 = vertex1->getColor();
-  const CVector3D &norm1 = vertex1->getNormalSet() ?
+  const CVector3D &norm1 = vertex1->hasNormal() ?
                            vertex1->getNormal() :
                            CGLMgrInst->getDefNormal();
   const CPoint3D  &tmap1 = vertex1->getTextureMap();
@@ -405,7 +403,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2)
   double           zp2   = pixel2.z;
   double           zv2   = viewed2.z;
   CRGBA            rgba2 = vertex2->getColor();
-  const CVector3D &norm2 = vertex2->getNormalSet() ?
+  const CVector3D &norm2 = vertex2->hasNormal() ?
                            vertex2->getNormal() :
                            CGLMgrInst->getDefNormal();
   const CPoint3D  &tmap2 = vertex2->getTextureMap();
@@ -870,7 +868,7 @@ setPoint(uint x, uint y, const Point &point, double zv)
 
     const CImagePtr &texture = gl_->modifyTexture2Data().getTextureImage(key);
 
-     if (texture.isValid() && texture->isValid()) {
+     if (texture && texture->isValid()) {
       int w = int(texture->getWidth ());
       int h = int(texture->getHeight());
 
@@ -1070,7 +1068,7 @@ setPoint(uint x, uint y, const Point &point, double zv)
     auto d = texture.size();
 
     if (d > 0) {
-     if (texture[0].isValid() && texture[0]->isValid()) {
+     if (texture[0] && texture[0]->isValid()) {
         int w = int(texture[0]->getWidth ());
         int h = int(texture[0]->getHeight());
 

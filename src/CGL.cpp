@@ -23,10 +23,7 @@ class CGLEventAdapter : public CXEventAdapter {
 
 CGLMgr::
 CGLMgr() :
- current_window_   (nullptr),
- current_window_id_(0),
- window_rect_      (0,0,300,300),
- error_num_        (GL_NO_ERROR)
+ window_rect_(0, 0, 300, 300)
 {
 }
 
@@ -191,43 +188,10 @@ unimplemented(const std::string &proc)
 
 CGL::
 CGL(CGLWind *window) :
- window_                (window),
- viewport_              (0.0,0.0,0.0,1.0,1.0,1.0),
- color_buffer_          (nullptr),
- render_mode_           (GL_RENDER),
- bg_                    (0.0, 0.0, 0.0, 1.0),
- lighting_              (false),
- flat_shading_          (false),
- line_width_            (1.0),
- current_display_list_  (nullptr),
- matrix_mode_           (GL_MODELVIEW),
- double_buffer_         (true),
- point_size_            (1.0),
- depth_near_            (0.0),
- depth_far_             (1.0),
- dither_                (false),
- line_stipple_          (false),
- line_smooth_           (false),
- line_smooth_hint_      (GL_DONT_CARE),
- poly_offset_fill_      (false),
- poly_stipple_          (false),
- poly_smooth_           (false),
- poly_offset_factor_    (0.0),
- poly_offset_units_     (0.0),
- front_face_mode_       (GL_FILL),
- back_face_mode_        (GL_FILL),
- fog_enabled_           (false),
- fog_hint_              (GL_DONT_CARE),
- block_type_            (-1),
- list_base_             (0),
- raster_pos_            (nullptr, CPoint3D(0,0,0)),
- color_table_enabled_   (false),
- convolution_2d_enabled_(false),
- histogram_enabled_     (false),
- minmax_enabled_        (false),
- pixel_zoom_x_          (1),
- pixel_zoom_y_          (1),
- texture_next_ind_      (2)
+ window_    (window),
+ viewport_  (0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+ bg_        (0.0, 0.0, 0.0, 1.0),
+ raster_pos_(nullptr, CPoint3D(0,0,0))
 {
   color_buffer_ = new CGLColorBuffer(this);
 
@@ -685,7 +649,7 @@ addBlockPoint(const CPoint3D &point)
       vertex->setNormal(getNormal());
 
     if (getTexCoordSet())
-      vertex->setTextureMap(getTexCoord());
+      vertex->setTextureMap(getTexCoord().toPoint2D());
 
     block_points_.push_back(vertex);
   }
@@ -703,7 +667,7 @@ addBlockPoint(const CPoint3D &point, const CRGBA &rgba,
 
   vertex->setColor     (rgba);
   vertex->setNormal    (normal);
-  vertex->setTextureMap(tmap);
+  vertex->setTextureMap(tmap.toPoint2D());
 
   block_points_.push_back(vertex);
 }
@@ -711,23 +675,23 @@ addBlockPoint(const CPoint3D &point, const CRGBA &rgba,
 void
 CGL::
 addBlockPoint(const CPoint3D &point,
-              const COptValT<CRGBA> &rgba,
-              const COptValT<CVector3D> &normal,
-              const COptValT<CPoint3D> &tmap)
+              const std::optional<CRGBA> &rgba,
+              const std::optional<CVector3D> &normal,
+              const std::optional<CPoint3D> &tmap)
 {
   if (executeCommand()) {
     CGeomVertex3D *vertex = new CGeomVertex3D(nullptr, point);
 
-    if (rgba.isValid())
-      vertex->setColor(rgba.getValue());
+    if (rgba)
+      vertex->setColor(rgba.value());
     else
       vertex->setColor(CRGBA(1,1,1));
 
-    if (normal.isValid())
-      vertex->setNormal(normal.getValue());
+    if (normal)
+      vertex->setNormal(normal.value());
 
-    if (tmap.isValid())
-      vertex->setTextureMap(tmap.getValue());
+    if (tmap)
+      vertex->setTextureMap(tmap.value().toPoint2D());
 
     block_points_.push_back(vertex);
   }
@@ -751,7 +715,7 @@ updateRasterPos(const CPoint3D &point)
     raster_pos_.setNormal(getNormal());
 
   if (getTexCoordSet())
-    raster_pos_.setTextureMap(getTexCoord());
+    raster_pos_.setTextureMap(getTexCoord().toPoint2D());
 
   transformVertex(&raster_pos_);
 }
@@ -804,7 +768,7 @@ drawPoint(CGeomVertex3D *vertex)
 
   CGLColorBuffer::Point bpoint(point.z,
                                vertex->getColor(),
-                               vertex->getVNormal(),
+                               vertex->getNormal(),
                                vertex->getTextureMap());
 
   if (point_size_ > 1.5) {
@@ -892,7 +856,7 @@ drawLine(CGeomVertex3D *vertex1, CGeomVertex3D *vertex2, bool first)
     std::vector<CGeomLight3D *>::const_iterator plight2 = lights_.end  ();
 
     for ( ; plight1 != plight2; ++plight1)
-      (*plight1)->lightPoint(rgba, vertex1->getViewed(), vertex1->getVNormal(), material);
+      (*plight1)->lightPoint(rgba, vertex1->getViewed(), vertex1->getNormal(), material);
 
     vertex1->setColor(rgba.clamp());
     vertex2->setColor(rgba.clamp());
@@ -1067,8 +1031,8 @@ drawPolygon(uint mode, const VertexList &vertices)
         std::vector<CGeomLight3D *>::const_iterator plight2 = lights_.end  ();
 
         for ( ; plight1 != plight2; ++plight1) {
-          if ((*pv1)->getNormalSet())
-            (*plight1)->lightPoint(rgba, (*pv1)->getViewed(), (*pv1)->getVNormal(), material);
+          if ((*pv1)->hasNormal())
+            (*plight1)->lightPoint(rgba, (*pv1)->getViewed(), (*pv1)->getNormal(), material);
           else
             (*plight1)->lightPoint(rgba, (*pv1)->getViewed(), normal, material);
         }
@@ -1145,7 +1109,7 @@ transformVertex(CGeomVertex3D *vertex)
 
   vertex->setViewed(vpoint);
 
-  if (vertex->getNormalSet()) {
+  if (vertex->hasNormal()) {
     CMatrix3DH *imodel_matrix = getIMatrix(GL_MODELVIEW);
 
     CMatrix3DH imodel_matrixt = imodel_matrix->transposed();
@@ -1154,7 +1118,7 @@ transformVertex(CGeomVertex3D *vertex)
 
     imodel_matrixt.multiplyVector(vertex->getNormal(), vnormal);
 
-    vertex->setVNormal(vnormal);
+    vertex->setNormal(vnormal);
   }
 
   //--------

@@ -9,7 +9,7 @@ exec() const
 {
   CMenuItem *item = getCurrentItem();
 
-  CGLMenuButton *button = dynamic_cast<CGLMenuButton *>(item);
+  auto *button = dynamic_cast<CGLMenuButton *>(item);
 
   if (item)
     (*callback_)(button->getValue());

@@ -8,9 +8,6 @@
 #include <CXLibPixelRenderer.h>
 
 class CGLWindEventAdapter : public CXEventAdapter {
- private:
-  CGLWind *window_;
-
  public:
   CGLWindEventAdapter(CGLWind *window) :
    window_(window) {
@@ -27,16 +24,16 @@ class CGLWindEventAdapter : public CXEventAdapter {
   bool keyReleaseEvent(const CKeyEvent &kevent) override;
 
   bool visibilityEvent(bool visible) override;
+
+ private:
+  CGLWind *window_ { nullptr };
 };
 
 //----------
 
 class CGLWindTimer : public CTimer {
- private:
+ public:
   typedef void (*TimerProc)(int);
-
-  TimerProc proc_;
-  int       value_;
 
  public:
   CGLWindTimer(uint msecs, TimerProc proc, int value) :
@@ -46,6 +43,10 @@ class CGLWindTimer : public CTimer {
   void timeOut() override {
     (*proc_)(value_);
   }
+
+ private:
+  TimerProc proc_;
+  int       value_;
 };
 
 //----------

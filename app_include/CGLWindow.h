@@ -1,24 +1,24 @@
 #ifndef CGL_WINDOW_H
 #define CGL_WINDOW_H
 
-#include <CEvent.h>
-#include <CAutoPtr.h>
-#include <CWindow.h>
 #include <CGLRenderer3D.h>
 #include <CGLApp.h>
 #include <CGLLight.h>
 #include <CGLDispAttr.h>
 #include <CGLControl2D.h>
 #include <CGLControl3D.h>
+#include <CWindow.h>
+#include <CEvent.h>
+#include <memory>
 
 class CGeomObject3D;
 class CGLWidget;
 
 class CGLWindowFactory : public CWindowFactory {
  public:
-  CWindow *createWindow(int x, int y, uint width, uint height);
+  CWindow *createWindow(int x, int y, uint width, uint height) override;
   CWindow *createWindow(CWindow *parent, int x, int y,
-                        uint width, uint height);
+                        uint width, uint height) override;
 };
 
 class CGLWindow : public CWindow {
@@ -26,7 +26,7 @@ class CGLWindow : public CWindow {
   typedef std::list<CGLWidget *> WidgetList;
 
  public:
-  CGLWindow(CGLWindow *parent=0);
+  CGLWindow(CGLWindow *parent=nullptr);
 
   virtual ~CGLWindow();
 
@@ -47,47 +47,47 @@ class CGLWindow : public CWindow {
   // CWindow interface implementation
   CGLPixelRenderer *getPixelRenderer() const;
 
-  void getPosition(int *x, int *y) const;
-  void getSize(uint *w, uint *h) const;
+  void getPosition(int *x, int *y) const override;
+  void getSize(uint *w, uint *h) const override;
 
-  void getScreenSize(uint *w, uint *h) const;
+  void getScreenSize(uint *w, uint *h) const override;
 
-  void destroy();
+  void destroy() override;
 
-  void move  (int x, int y);
-  void resize(uint w, uint h);
+  void move  (int x, int y) override;
+  void resize(uint w, uint h) override;
 
-  void map();
-  void unmap();
+  void map() override;
+  void unmap() override;
 
-  bool isMapped();
+  bool isMapped() override;
 
-  void iconize  ();
-  void deiconize();
+  void iconize  () override;
+  void deiconize() override;
 
-  void maximize  ();
-  void demaximize();
+  void maximize  () override;
+  void demaximize() override;
 
-  void lower();
-  void raise();
+  void lower() override;
+  void raise() override;
 
-  void setWindowTitle(const std::string &title);
-  void setIconTitle  (const std::string &title);
+  void setWindowTitle(const std::string &title) override;
+  void setIconTitle  (const std::string &title) override;
 
-  void getWindowTitle(std::string &title) const;
-  void getIconTitle(std::string &title) const;
+  void getWindowTitle(std::string &title) const override;
+  void getIconTitle(std::string &title) const override;
 
-  void expose();
+  void expose() override;
 
-  void setEventAdapter(CEventAdapter *adapter);
+  void setEventAdapter(CEventAdapter *adapter) override;
 
-  bool setSelectText(const std::string &text);
+  bool setSelectText(const std::string &text) override;
 
-  bool setProperty(const std::string &name, const std::string &value);
+  bool setProperty(const std::string &name, const std::string &value) override;
 
   //------
 
-  CEventAdapter *getEventAdapter() const { return event_adapter_; }
+  CEventAdapter *getEventAdapter() const { return event_adapter_.get(); }
 
   void enableDispAttr();
 
@@ -134,7 +134,7 @@ class CGLWindow : public CWindow {
   void hideCB         ();
   void showCB         ();
 
-  virtual bool exposeEvent();
+  bool exposeEvent() override;
 
   virtual void drawScene();
 
@@ -148,22 +148,27 @@ class CGLWindow : public CWindow {
   void setShapeFromImage(CImagePtr image);
 
   void addObject(CGeomObject3D &object,
-                 const CMatrix3D &matrix = CMatrix3D(CMATRIX_TYPE_IDENTITY));
+                 const CMatrix3D &matrix = CMatrix3D(CMatrix3D::Type::IDENTITY));
 
   void drawWidgets();
 
  protected:
-  CGLWindow               *parent_;
-  int                      id_;
-  CIPoint2D                pos_;
-  CISize2D                 size_;
-  CAutoPtr<CGLRenderer3D>  renderer_;
-  CAutoPtr<CEventAdapter>  event_adapter_;
-  CAutoPtr<CGLDispAttr>    disp_attr_;
-  CAutoPtr<CGLControl>     control_;
-  WidgetList               widgetList_;
-  bool                     in_select_;
-  int                      pick_name_;
+  using RendererP     = std::unique_ptr<CGLRenderer3D>;
+  using EventAdapterP = std::unique_ptr<CEventAdapter>;
+  using DispAttrP     = std::unique_ptr<CGLDispAttr>;
+  using ControlP      = std::unique_ptr<CGLControl>;
+
+  CGLWindow*    parent_     { nullptr };
+  int           id_         { 0 };
+  CIPoint2D     pos_        { 0, 0 };
+  CISize2D      size_       { 100, 100 };
+  RendererP     renderer_;
+  EventAdapterP event_adapter_;
+  DispAttrP     disp_attr_;
+  ControlP      control_;
+  WidgetList    widgetList_;
+  bool          in_select_  { false };
+  int           pick_name_  { 0 };
 };
 
 #endif

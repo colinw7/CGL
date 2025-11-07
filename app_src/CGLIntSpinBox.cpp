@@ -1,5 +1,7 @@
 #include <CGLIntSpinBox.h>
+#include <CImageLib.h>
 #include <CRGBName.h>
+#include <CStrUtil.h>
 
 CGLIntSpinBox::
 CGLIntSpinBox(CGLWidget *parent, const char *name) :
@@ -39,28 +41,28 @@ void
 CGLIntSpinBox::
 setMinValue(int minValue)
 {
-  minValue_.setValue(minValue);
+  minValue_ = minValue;
 }
 
 void
 CGLIntSpinBox::
 setMaxValue(int maxValue)
 {
-  maxValue_.setValue(maxValue);
+  maxValue_ = maxValue;
 }
 
 void
 CGLIntSpinBox::
 draw()
 {
-  CGLRenderer3D *renderer = getRenderer();
+  auto *renderer = getRenderer();
 
-  int x1 = getX();
-  int y1 = getY();
-  int x2 = x1 + getWidth () - 1;
-  int y2 = y1 + getHeight() - 1;
+  int x1 = int(getX());
+  int y1 = int(getY());
+  int x2 = x1 + int(getWidth ()) - 1;
+  int y2 = y1 + int(getHeight()) - 1;
 
-  if (image_.isValid()) {
+  if (image_) {
     renderer->setOverlayLayer(2);
 
     renderer->drawOverlayImage(x1, y1, image_);
@@ -81,7 +83,7 @@ draw()
 
     renderer->drawOverlayImage(x1 + x, y1 + ty, image);
 
-    x += image->getWidth() + border_;
+    x += int(image->getWidth()) + border_;
   }
 
   int bsize = ((y2 - y1) - 3*border_)/2;
@@ -121,7 +123,7 @@ draw()
 
   CImagePtr image = renderer->imageString(CStrUtil::toString(value_));
 
-  x = getWidth() - 2*border_ - bsize - image->getWidth();
+  x = int(getWidth()) - int(2*border_) - bsize - int(image->getWidth());
 
   int ty = (y2 - y1 - int(image->getHeight()))/2;
 
@@ -134,7 +136,7 @@ void
 CGLIntSpinBox::
 upPress()
 {
-  if (! maxValue_.isValid() || value_ < maxValue_.getValue()) {
+  if (! maxValue_ || value_ < maxValue_.value()) {
     ++value_;
 
     valueChangedSignal_();
@@ -147,7 +149,7 @@ void
 CGLIntSpinBox::
 downPress()
 {
-  if (! minValue_.isValid() || value_ > minValue_.getValue()) {
+  if (! minValue_ || value_ > minValue_.value()) {
     --value_;
 
     valueChangedSignal_();

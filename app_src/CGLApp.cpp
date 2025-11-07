@@ -177,7 +177,8 @@ mouseCB(int button, int state, int x, int y)
   if (modifiers == GLUT_ACTIVE_CTRL ) modifier |= CMODIFIER_CONTROL;
   if (modifiers == GLUT_ACTIVE_ALT  ) modifier |= CMODIFIER_ALT;
 
-  CMouseEvent event(CIPoint2D(x, y), app->mouse_button_, 1, (CEventModifier) modifier);
+  CMouseEvent event(CIPoint2D(x, y), app->mouse_button_, 1,
+                    static_cast<CEventModifier>(modifier));
 
   int id = glutGetWindow();
 
@@ -200,7 +201,7 @@ motionCB(int x, int y)
   int modifier = CMODIFIER_NONE;
 
   CMouseEvent event(CIPoint2D(x, y), app->mouse_button_, 1,
-                    (CEventModifier) modifier);
+                    static_cast<CEventModifier>(modifier));
 
   int id = glutGetWindow();
 
@@ -212,23 +213,23 @@ motionCB(int x, int y)
 
 void
 CGLApp::
-keyboardDownCB(uchar key, int x, int y)
+keyboardDownCB(unsigned char key, int x, int y)
 {
   keyboardCB(key, x, y, GLUT_KEY_DOWN);
 }
 
 void
 CGLApp::
-keyboardUpCB(uchar key, int x, int y)
+keyboardUpCB(unsigned char key, int x, int y)
 {
   keyboardCB(key, x, y, GLUT_KEY_UP);
 }
 
 void
 CGLApp::
-keyboardCB(uchar key, int x, int y, int state)
+keyboardCB(unsigned char key, int x, int y, int state)
 {
-  CKeyType key1 = (CKeyType) key;
+  CKeyType key1 = static_cast<CKeyType>(key);
 
   int modifier = CMODIFIER_NONE;
 
@@ -238,9 +239,8 @@ keyboardCB(uchar key, int x, int y, int state)
   if (modifiers == GLUT_ACTIVE_CTRL ) modifier |= CMODIFIER_CONTROL;
   if (modifiers == GLUT_ACTIVE_ALT  ) modifier |= CMODIFIER_ALT;
 
-  CKeyEvent event(CIPoint2D(x, y), key1,
-                  CEvent::keyTypeName(key1),
-                  (CEventModifier) modifier);
+  CKeyEvent event(CIPoint2D(x, y), key1, CEvent::keyTypeName(key1),
+                  static_cast<CEventModifier>(modifier));
 
   int id = glutGetWindow();
 
@@ -306,9 +306,8 @@ specialKeyCB(int key, int x, int y, int state)
   if (modifiers == GLUT_ACTIVE_CTRL ) modifier |= CMODIFIER_CONTROL;
   if (modifiers == GLUT_ACTIVE_ALT  ) modifier |= CMODIFIER_ALT;
 
-  CKeyEvent event(CIPoint2D(x, y), key1,
-                  CEvent::keyTypeName(key1),
-                  (CEventModifier) modifier);
+  CKeyEvent event(CIPoint2D(x, y), key1, CEvent::keyTypeName(key1),
+                  static_cast<CEventModifier>(modifier));
 
   int id = glutGetWindow();
 
@@ -497,11 +496,11 @@ isExtensionSupported(const char *extension) const
   if (! extension || extension[0] == '\0' || strchr(extension, ' ') != NULL)
     return 0;
 
-  int len = strlen(extension);
+  auto len = strlen(extension);
 
-  const char *extensions = (const char *) glGetString(GL_EXTENSIONS);
+  const auto *extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
-  const char *start = extensions;
+  const auto *start = extensions;
 
   for (;;) {
     const char *where = strstr(start, extension);

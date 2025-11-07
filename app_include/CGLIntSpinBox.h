@@ -2,19 +2,13 @@
 #define CGLIntSpinBox_H
 
 #include <CGLWidget.h>
-#include <COptVal.h>
+#include <boost/signals2/signal.hpp>
+
+#include <optional>
 
 class CGLIntSpinBox : public CGLWidget {
- protected:
-  typedef boost::signal<void ()> ValueChangedSignalType;
-
-  std::string            label_;
-  CImagePtr              image_;
-  int                    value_;
-  int                    border_;
-  COptValT<int>          minValue_, maxValue_;
-  uint                   region1_, region2_;
-  ValueChangedSignalType valueChangedSignal_;
+ public:
+  using ValueChangedSignalType = boost::signals2::signal<void ()>;
 
  public:
   CGLIntSpinBox(CGLWidget *parent, const char *name);
@@ -41,10 +35,21 @@ class CGLIntSpinBox : public CGLWidget {
   }
 
  protected:
-  void draw();
+  void draw() override;
 
   void upPress();
   void downPress();
+
+ protected:
+  using OptInt = std::optional<int>;
+
+  std::string            label_;
+  CImagePtr              image_;
+  int                    value_;
+  int                    border_;
+  OptInt                 minValue_, maxValue_;
+  uint                   region1_, region2_;
+  ValueChangedSignalType valueChangedSignal_;
 };
 
 #endif

@@ -6,7 +6,7 @@ CGLMenu::
 CGLMenu(CGLWindow *window) :
  window_(window)
 {
-  id_ = glutCreateMenu(menuCB);
+  id_ = uint(glutCreateMenu(menuCB));
 
   CGLMenuMgrInst->addMenu(id_, this);
 
@@ -19,7 +19,7 @@ attach()
 {
   window_->setCurrent();
 
-  glutSetMenu(id_);
+  glutSetMenu(int(id_));
 
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -28,11 +28,11 @@ void
 CGLMenu::
 addMenuItem(CGLMenuItem *item)
 {
-  glutSetMenu(id_);
+  glutSetMenu(int(id_));
 
   item->setId(item_id_);
 
-  glutAddMenuEntry(item->getText().c_str(), item->getId());
+  glutAddMenuEntry(item->getText().c_str(), int(item->getId()));
 
   menu_item_map_[item_id_] = item;
 
@@ -43,9 +43,9 @@ void
 CGLMenu::
 addSubMenu(CGLMenu *menu, const std::string &text)
 {
-  glutSetMenu(id_);
+  glutSetMenu(int(id_));
 
-  glutAddSubMenu(text.c_str(), menu->getId());
+  glutAddSubMenu(text.c_str(), int(menu->getId()));
 }
 
 void
@@ -54,12 +54,12 @@ menuCB(int item_id)
 {
   int id = glutGetMenu();
 
-  CGLMenu *menu = CGLMenuMgrInst->getMenu(id);
+  CGLMenu *menu = CGLMenuMgrInst->getMenu(uint(id));
 
   if (menu == NULL)
     return;
 
-  CGLMenuItem *item = menu->getMenuItem(item_id);
+  CGLMenuItem *item = menu->getMenuItem(uint(item_id));
 
   if (item == NULL)
     return;

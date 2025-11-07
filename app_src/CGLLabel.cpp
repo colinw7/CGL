@@ -1,4 +1,5 @@
 #include <CGLLabel.h>
+#include <CImageLib.h>
 
 CGLLabel::
 CGLLabel(CGLWidget *parent, const char *name) :
@@ -31,12 +32,12 @@ draw()
 {
   CGLRenderer3D *renderer = getRenderer();
 
-  int x1 = getX();
-  int y1 = getY();
-  int x2 = x1 + getWidth () - 1;
-  int y2 = y1 + getHeight() - 1;
+  int x1 = int(getX());
+  int y1 = int(getY());
+  int x2 = x1 + int(getWidth ()) - 1;
+  int y2 = y1 + int(getHeight()) - 1;
 
-  if (image_.isValid()) {
+  if (image_) {
     renderer->setOverlayLayer(2);
 
     renderer->drawOverlayImage(x1, y1, image_);

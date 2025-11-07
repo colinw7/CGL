@@ -133,7 +133,7 @@ CFontPtr
 CGLWidget::
 getFont() const
 {
-  if (! font_.isValid() && parent_)
+  if (! font_ && parent_)
     return parent_->getFont();
 
   return font_;
@@ -172,9 +172,9 @@ CGLWidget::
 getX() const
 {
   if (parent_)
-    return parent_->getX() + bbox_.getXMin();
+    return parent_->getX() + uint(bbox_.getXMin());
   else
-    return bbox_.getXMin();
+    return uint(bbox_.getXMin());
 }
 
 uint
@@ -182,23 +182,23 @@ CGLWidget::
 getY() const
 {
   if (parent_)
-    return parent_->getY() + bbox_.getYMin();
+    return parent_->getY() + uint(bbox_.getYMin());
   else
-    return bbox_.getYMin();
+    return uint(bbox_.getYMin());
 }
 
 uint
 CGLWidget::
 getWidth() const
 {
-  return bbox_.getWidth();
+  return uint(bbox_.getWidth());
 }
 
 uint
 CGLWidget::
 getHeight() const
 {
-  return bbox_.getHeight();
+  return uint(bbox_.getHeight());
 }
 
 CGLRenderer3D *
@@ -214,8 +214,8 @@ exposeEvent()
 {
   CGLRenderer3D *renderer = window_->getRenderer();
 
-  int w = getWidth ();
-  int h = getHeight();
+  int w = int(getWidth ());
+  int h = int(getHeight());
 
   //int s = 0.95*std::min(w, h);
 
@@ -227,7 +227,7 @@ exposeEvent()
   //renderer->setOverlayDataRange(-dx, s + dy, s + dx, -dy);
   renderer->setOverlayDataRange(0, h - 1, w - 1, 0);
 
-  glLoadName(CGLWidgetMgrInst->getId());
+  glLoadName(GLuint(CGLWidgetMgrInst->getId()));
 
   if (autoFill_) {
     renderer->setForeground(bg_);
@@ -379,7 +379,8 @@ bool
 CGLWidget::
 isInside(const CIPoint2D &pos)
 {
-  CIBBox2D bbox(CIPoint2D(getX(), getY()), CISize2D(getWidth(), getHeight()));
+  auto bbox =
+    CIBBox2D(CIPoint2D(int(getX()), int(getY())), CISize2D(int(getWidth()), int(getHeight())));
 
   return bbox.inside(pos);
 }

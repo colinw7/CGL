@@ -68,12 +68,12 @@ leg[][2] = {
 
 static GLfloat
 eye[][2] = {
-  {  8.75, 15   },
-  {  9   , 14.7 },
-  {  9.6 , 14.7 },
-  { 10.1 , 15   },
-  {  9.6 , 15.25},
-  {  9   , 15.25},
+  {  8.75f, 15.00f },
+  {  9.00f, 14.70f },
+  {  9.60f, 14.70f },
+  { 10.10f, 15.00f },
+  {  9.60f, 15.25f },
+  {  9.00f, 15.25f },
 };
 
 enum {
@@ -92,8 +92,8 @@ enum {
   DINOSAUR
 };
 
-GLfloat skinColor[] = { 0.1, 1.0, 0.1, 1.0};
-GLfloat eyeColor [] = { 1.0, 0.2, 0.2, 1.0};
+GLfloat skinColor[] = { 0.1f, 1.0f, 0.1f, 1.0f };
+GLfloat eyeColor [] = { 1.0f, 0.2f, 0.2f, 1.0f };
 
 CGLDinosaur::
 CGLDinosaur() :
@@ -139,15 +139,15 @@ createList(uint offset)
       glCallList(offset + ARM_WHOLE);
       glCallList(offset + LEG_WHOLE);
 
-      glTranslatef(0.0, 0.0, -bodyWidth - bodyWidth/4.0);
+      glTranslatef(0.0, 0.0, float(-bodyWidth - bodyWidth/4.0));
 
       glCallList(offset + ARM_WHOLE);
 
-      glTranslatef(0.0, 0.0, - bodyWidth/4.0);
+      glTranslatef(0.0, 0.0, float(-bodyWidth/4.0));
 
       glCallList(offset + LEG_WHOLE);
 
-      glTranslatef(0.0, 0.0, bodyWidth/2.0 - 0.1);
+      glTranslatef(0.0, 0.0, float(bodyWidth/2.0 - 0.1));
 
       glMaterialfv(GL_FRONT, GL_DIFFUSE, eyeColor);
 
@@ -173,9 +173,11 @@ extrudeSolidFromPolygon(GLfloat data[][2], uint dataSize,
   if (tobj == NULL) {
     tobj = gluNewTess();
 
-    gluTessCallback(tobj, GLU_BEGIN , (void (*)()) glBegin);
-    gluTessCallback(tobj, GLU_VERTEX, (void (*)()) glVertex2fv);
-    gluTessCallback(tobj, GLU_END   , (void (*)()) glEnd);
+    using Callback = void (*)();
+
+    gluTessCallback(tobj, GLU_BEGIN , reinterpret_cast<Callback>(glBegin));
+    gluTessCallback(tobj, GLU_VERTEX, reinterpret_cast<Callback>(glVertex2fv));
+    gluTessCallback(tobj, GLU_END   , reinterpret_cast<Callback>(glEnd));
   }
 
   glNewList(side, GL_COMPILE);
@@ -203,14 +205,14 @@ extrudeSolidFromPolygon(GLfloat data[][2], uint dataSize,
 
     for (uint i = 0; i <= count; ++i) {
       glVertex3f(data[i % count][0], data[i % count][1], 0.0);
-      glVertex3f(data[i % count][0], data[i % count][1], thickness);
+      glVertex3f(data[i % count][0], data[i % count][1], float(thickness));
 
       double dx = data[(i + 1) % count][1] - data[i % count][1];
       double dy = data[i % count][0] - data[(i + 1) % count][0];
 
       double len = sqrt(dx * dx + dy * dy);
 
-      glNormal3f(dx / len, dy / len, 0.0);
+      glNormal3f(float(dx/len), float(dy/len), 0.0);
     }
 
     glEnd();
@@ -222,7 +224,7 @@ extrudeSolidFromPolygon(GLfloat data[][2], uint dataSize,
     glNormal3f(0.0, 0.0, -1.0);
     glCallList(side);
     glPushMatrix();
-      glTranslatef(0.0, 0.0, thickness);
+      glTranslatef(0.0, 0.0, float(thickness));
       glFrontFace(GL_CCW);
       glNormal3f(0.0, 0.0, 1.0);
       glCallList(side);

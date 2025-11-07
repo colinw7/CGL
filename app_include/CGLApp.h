@@ -21,10 +21,10 @@ struct CRGBAToFV {
   float fvalues[4];
 
   CRGBAToFV(const CRGBA &rgba) {
-    fvalues[0] = rgba.getRed  ();
-    fvalues[1] = rgba.getGreen();
-    fvalues[2] = rgba.getBlue ();
-    fvalues[3] = rgba.getAlpha();
+    fvalues[0] = rgba.getRedF  ();
+    fvalues[1] = rgba.getGreenF();
+    fvalues[2] = rgba.getBlueF ();
+    fvalues[3] = rgba.getAlphaF();
   }
 };
 
@@ -32,7 +32,7 @@ struct DoubleToFV {
   float fvalues[1];
 
   DoubleToFV(double value) {
-    fvalues[0] = value;
+    fvalues[0] = float(value);
   }
 };
 
@@ -65,7 +65,7 @@ class CGLApp {
 
   void timerLoop(uint msecs);
 
-  virtual CGLWindow *newWindow(CGLWindow *parent = 0);
+  virtual CGLWindow *newWindow(CGLWindow *parent = nullptr);
 
   void addWindow(CGLWindow *window);
 

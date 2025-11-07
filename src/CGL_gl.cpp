@@ -1731,12 +1731,11 @@ glEvalCoord1d(GLdouble u)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  COptValT<CRGBA>     rgba;
-  COptValT<CVector3D> normal;
-  COptValT<CPoint3D>  tmap;
+  std::optional<CRGBA>     rgba;
+  std::optional<CVector3D> normal;
+  std::optional<CPoint3D>  tmap;
 
-  if (gl->getMap1Data().getGenColor() &&
-      gl->hasMap1(GL_MAP1_COLOR_4)) {
+  if (gl->getMap1Data().getGenColor() && gl->hasMap1(GL_MAP1_COLOR_4)) {
     const CGLMap1 &map = gl->getMap1(GL_MAP1_COLOR_4);
 
     double r, g, b, a;
@@ -1836,12 +1835,11 @@ glEvalCoord2d(GLdouble u, GLdouble v)
 {
   CGL *gl = CGLMgrInst->getCurrentGL();
 
-  COptValT<CRGBA>     rgba;
-  COptValT<CVector3D> normal;
-  COptValT<CPoint3D>  tmap;
+  std::optional<CRGBA>     rgba;
+  std::optional<CVector3D> normal;
+  std::optional<CPoint3D>  tmap;
 
-  if (gl->getMap2Data().getGenColor() &&
-      gl->hasMap2(GL_MAP2_COLOR_4)) {
+  if (gl->getMap2Data().getGenColor() && gl->hasMap2(GL_MAP2_COLOR_4)) {
     const CGLMap2 &map = gl->getMap2(GL_MAP2_COLOR_4);
 
     double r, g, b, a;
@@ -1908,7 +1906,7 @@ glEvalCoord2d(GLdouble u, GLdouble v)
     tmap = CPoint3D(x, 0, 0);
   }
 
-  if (! rgba.isValid())
+  if (! rgba)
     rgba = CRGBA(0,0,0);
 
   if      (gl->getMap2Data().getGenVertex4() &&

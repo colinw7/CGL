@@ -33,9 +33,9 @@ class CGLToonTorus : public CGLTorus {
   CGLToonTorus(double majorRadius, double minorRadius, int numMajor,
                int numMinor, const CVector3D &lightDir);
 
-  void draw();
+  void draw() override;
 
-  void processPoint(const CPoint3D &point, const CVector3D &normal);
+  void processPoint(const CPoint3D &point, const CVector3D &normal) override;
 };
 
 #endif

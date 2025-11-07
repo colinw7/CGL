@@ -2,8 +2,7 @@
 #include <CGL.h>
 
 CGLAccumBuffer::
-CGLAccumBuffer(uint width, uint height) :
- width_(0), height_(0), lines_(nullptr), clear_color_(0,0,0,1)
+CGLAccumBuffer(uint width, uint height)
 {
   resize(width, height);
 }
@@ -41,7 +40,7 @@ resize(uint width, uint height)
     }
   }
   else
-    lines_ = NULL;
+    lines_ = nullptr;
 }
 
 void

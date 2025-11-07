@@ -19,19 +19,17 @@ class CGLColorBuffer {
  public:
   struct Point {
     // interpolated
-    double    z;
-    CRGBA     rgba;
-    CVector3D normal;
-    CPoint3D  tmap;
+    double    z      { 0.0 };
+    CRGBA     rgba   { 0, 0, 0 };
+    CVector3D normal { 0, 0, 0 };
+    CPoint3D  tmap   { 0, 0, 0 };
 
-    uint      stencil_value;
+    uint stencil_value { 0 };
 
-    Point() :
-     z(0), rgba(0,0,0), normal(0,0,0), tmap(0,0,0), stencil_value(0) {
-    }
+    Point() { }
 
-    Point(double z1, const CRGBA &rgba1, const CVector3D &normal1=CVector3D(0,0,0),
-          const CPoint3D &tmap1=CPoint3D(0,0,0)) :
+    Point(double z1, const CRGBA &rgba1, const CVector3D &normal1=CVector3D(0, 0, 0),
+          const CPoint3D &tmap1=CPoint3D(0, 0, 0)) :
      z(z1), rgba(rgba1), normal(normal1), tmap(tmap1), stencil_value(0) {
     }
 
@@ -53,28 +51,6 @@ class CGLColorBuffer {
       return *this;
     }
   };
-
- private:
-  struct Line {
-    Point *points;
-  };
-
-  //------
-
-  CGL        *gl_;
-  uint        width_;
-  uint        height_;
-  Line       *lines_;
-  Point       def_point_;
-  CRGBA       clear_color_;
-  uint        clear_ind_;
-  double      clear_depth_;
-  bool        smooth_;
-  uint        line_width_;
-  CILineDash  line_dash_;
-  bool        depth_writable_;
-  uint        stencil_clear_value_;
-  uint        stencil_mask_;
 
  public:
   CGLColorBuffer(CGL *gl, uint width=100, uint height=100);
@@ -140,6 +116,28 @@ class CGLColorBuffer {
              const std::vector<CGeomLight3D *> &lights);
 
   void render(CPixelRenderer *renderer);
+
+ private:
+  struct Line {
+    Point *points { nullptr };
+  };
+
+  //------
+
+  CGL*        gl_                  { nullptr };
+  uint        width_               { 0 };
+  uint        height_              { 0 };
+  Line*       lines_               { nullptr };
+  Point       def_point_;
+  CRGBA       clear_color_         { 0, 0, 0, 1 };
+  uint        clear_ind_           { 0 };
+  double      clear_depth_         { 100 };
+  bool        smooth_              { false };
+  uint        line_width_          { 0 };
+  CILineDash  line_dash_;
+  bool        depth_writable_      { true };
+  uint        stencil_clear_value_ { 0 };
+  uint        stencil_mask_        { 0xFF };
 };
 
 #endif
